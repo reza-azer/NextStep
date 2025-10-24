@@ -4,17 +4,47 @@ import { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, FileJson, FileUp, Sparkles, PlusCircle, FileSpreadsheet } from "lucide-react";
+import { FileJson, Sparkles, PlusCircle, FileSpreadsheet } from "lucide-react";
 import { useEmployeeData } from '@/hooks/use-employee-data';
 import { toast } from '@/hooks/use-toast';
 import * as XLSX from 'xlsx';
+import type { Employee } from '@/lib/types';
+
+const nameVariations = ['name', 'nama', 'nama lengkap'];
+const nipVariations = ['nip', 'employee id', 'nomor induk pegawai'];
+const dateVariations = ['lastkgbdate', 'last kgb date', 'tanggal kgb terakhir'];
+
+function findHeader(headers: string[], variations: string[]): string | undefined {
+    return headers.find(header => variations.includes(header.toLowerCase().trim()));
+}
+
+function parseDate(dateValue: any): string | null {
+    if (!dateValue) return null;
+
+    // Handle Excel date serial number
+    if (typeof dateValue === 'number' && dateValue > 1) {
+        // Excel serial date starts from 1 for 1900-01-01. XLSX library handles this.
+        const date = XLSX.SSF.parse_date_code(dateValue);
+        if (date) {
+            return new Date(date.y, date.m - 1, date.d, date.H, date.M, date.S).toISOString();
+        }
+    }
+    
+    // Handle date string
+    const d = new Date(dateValue);
+    if (!isNaN(d.getTime())) {
+        return d.toISOString();
+    }
+
+    return null;
+}
 
 export default function WelcomePage() {
     const [step, setStep] = useState('initial');
     const { importEmployees: importJson, setInitialData } = useEmployeeData();
     const router = useRouter();
     const jsonInputRef = useRef<HTMLInputElement>(null);
-    const excelInputRef = useRef<HTMLInputElement>(null);
+    const spreadsheetInputRef = useRef<HTMLInputElement>(null);
 
     const handleJsonFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
@@ -24,35 +54,69 @@ export default function WelcomePage() {
         }
     };
     
-    const handleExcelFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const handleSpreadsheetFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                try {
-                    const data = e.target?.result;
-                    const workbook = XLSX.read(data, { type: 'binary' });
-                    const sheetName = workbook.SheetNames[0];
-                    const worksheet = workbook.Sheets[sheetName];
-                    const jsonData: any[] = XLSX.utils.sheet_to_json(worksheet);
+        if (!file) return;
 
-                    const employees = jsonData.map(row => ({
-                        id: row.id || crypto.randomUUID(),
-                        name: row.name,
-                        nip: String(row.nip),
-                        lastKGBDate: new Date((row.lastKGBDate - (25567 + 1)) * 86400 * 1000).toISOString(),
-                    }));
-                    
-                    setInitialData(employees);
-                    toast({ title: 'Import Successful', description: `${employees.length} employees imported from Excel.` });
-                    router.push('/dashboard');
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            try {
+                const data = e.target?.result;
+                const workbook = XLSX.read(data, { type: 'binary' });
+                const sheetName = workbook.SheetNames[0];
+                const worksheet = workbook.Sheets[sheetName];
+                const jsonData: any[] = XLSX.utils.sheet_to_json(worksheet, {header: 1});
 
-                } catch (error) {
-                    toast({ variant: 'destructive', title: 'Import Failed', description: 'Could not parse the Excel file.' });
+                if(jsonData.length < 2) {
+                    throw new Error("Spreadsheet is empty or has no data rows.");
                 }
-            };
-            reader.readAsBinaryString(file);
-        }
+                
+                const headers: string[] = jsonData[0];
+                const dataRows = jsonData.slice(1);
+
+                const nameHeader = findHeader(headers, nameVariations);
+                const nipHeader = findHeader(headers, nipVariations);
+                const dateHeader = findHeader(headers, dateVariations);
+
+                if (!nameHeader || !nipHeader || !dateHeader) {
+                    let missingColumns = [];
+                    if (!nameHeader) missingColumns.push("Nama");
+                    if (!nipHeader) missingColumns.push("NIP");
+                    if (!dateHeader) missingColumns.push("Tanggal KGB Terakhir");
+                    throw new Error(`Column mapping failed. Missing required columns: ${missingColumns.join(', ')}. Please check your file headers.`);
+                }
+                
+                const nameIndex = headers.indexOf(nameHeader);
+                const nipIndex = headers.indexOf(nipHeader);
+                const dateIndex = headers.indexOf(dateHeader);
+
+                const employees: Employee[] = dataRows.map((row: any[]) => {
+                    const lastKGBDate = parseDate(row[dateIndex]);
+                    if (!lastKGBDate) {
+                        return null;
+                    }
+                    return {
+                        id: crypto.randomUUID(),
+                        name: row[nameIndex],
+                        nip: String(row[nipIndex]),
+                        lastKGBDate: lastKGBDate,
+                    };
+                }).filter((e): e is Employee => e !== null);
+                
+                if (employees.length === 0) {
+                     throw new Error("No valid employee data could be parsed. Check date formats.");
+                }
+
+                setInitialData(employees);
+                toast({ title: 'Import Successful', description: `${employees.length} employees imported from ${file.name}.` });
+                router.push('/dashboard');
+
+            } catch (error: any) {
+                console.error(error);
+                toast({ variant: 'destructive', title: 'Import Failed', description: error.message || 'Could not parse the spreadsheet file.' });
+            }
+        };
+        reader.readAsBinaryString(file);
     };
 
     const renderStep = () => {
@@ -73,14 +137,14 @@ export default function WelcomePage() {
                                 </CardHeader>
                             </Card>
                         </button>
-                        <button onClick={() => excelInputRef.current?.click()} className="text-left">
+                        <button onClick={() => spreadsheetInputRef.current?.click()} className="text-left">
                             <Card className="hover:bg-accent/50 hover:border-primary transition-all">
                                 <CardHeader>
                                     <div className="flex items-center gap-4">
                                         <FileSpreadsheet className="w-8 h-8 text-primary" />
                                         <div>
-                                            <CardTitle className="font-headline">Import from Excel</CardTitle>
-                                            <CardDescription>Upload an .xlsx file to bulk import employees.</CardDescription>
+                                            <CardTitle className="font-headline">Import from Excel/CSV</CardTitle>
+                                            <CardDescription>Upload an .xlsx or .csv file to bulk import.</CardDescription>
                                         </div>
                                     </div>
                                 </CardHeader>
@@ -134,9 +198,9 @@ export default function WelcomePage() {
             />
             <input
                 type="file"
-                ref={excelInputRef}
-                onChange={handleExcelFileChange}
-                accept=".xlsx"
+                ref={spreadsheetInputRef}
+                onChange={handleSpreadsheetFileChange}
+                accept=".xlsx, .csv"
                 className="hidden"
             />
             <div className="w-full max-w-4xl mx-auto">
@@ -156,3 +220,5 @@ export default function WelcomePage() {
         </div>
     );
 }
+
+    
