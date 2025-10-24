@@ -69,7 +69,13 @@ export default function WelcomePage() {
         reader.onload = (e) => {
             try {
                 const data = e.target?.result;
-                const workbook = XLSX.read(data, { type: 'binary', cellDates: true, dateNF: 'yyyy-mm-dd' });
+                let workbook;
+                if (file.name.endsWith('.csv')) {
+                    // For CSV files, we need to detect the separator. Let's assume semicolon for now.
+                    workbook = XLSX.read(data, { type: 'string', FS: ';' });
+                } else {
+                    workbook = XLSX.read(data, { type: 'binary', cellDates: true, dateNF: 'yyyy-mm-dd' });
+                }
                 const sheetName = workbook.SheetNames[0];
                 const worksheet = workbook.Sheets[sheetName];
                 const jsonData: any[] = XLSX.utils.sheet_to_json(worksheet, {header: 1});
@@ -98,11 +104,11 @@ export default function WelcomePage() {
                 const nipIndex = headers.indexOf(nipHeader);
 
                 const yearColumns = headers.map((h, i) => ({ header: h, index: i }))
-                    .filter(col => typeof col.header === 'string' && /^\d{4}$/.test(col.header))
-                    .sort((a, b) => parseInt(a.header!) - parseInt(b.header!));
+                    .filter(col => typeof col.header === 'string' && /^\d{4}$/.test(col.header.trim()))
+                    .sort((a, b) => parseInt(a.header!.trim()) - parseInt(b.header!.trim()));
 
                 if (yearColumns.length === 0) {
-                    throw new Error("No year columns (e.g., 2023, 2024) found in the header.");
+                     throw new Error("No year columns (e.g., 2023, 2024) found in the header.");
                 }
 
                 const employees: Employee[] = dataRows.map((row: any[]) => {
@@ -110,7 +116,7 @@ export default function WelcomePage() {
                     // Iterate backwards through year columns to find the latest valid month
                     for (let i = yearColumns.length - 1; i >= 0; i--) {
                         const yearCol = yearColumns[i];
-                        const year = parseInt(yearCol.header!);
+                        const year = parseInt(yearCol.header!.trim());
                         const monthVal = row[yearCol.index];
                         
                         if (typeof monthVal === 'string' && monthVal.trim().length >= 3) {
@@ -131,7 +137,7 @@ export default function WelcomePage() {
                         id: crypto.randomUUID(),
                         name: row[nameIndex],
                         position: row[positionIndex],
-                        nip: String(row[nipIndex]).replace(/'/g, ''), // Clean NIP
+                        nip: String(row[nipIndex] || '').replace(/'/g, ''), // Clean NIP
                         lastKGBDate: lastKGBDate,
                     };
                 }).filter((e): e is Employee => e !== null);
@@ -258,5 +264,3 @@ export default function WelcomePage() {
         </div>
     );
 }
-
-    
