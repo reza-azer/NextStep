@@ -14,8 +14,13 @@ const nameVariations = ['name', 'nama', 'nama lengkap'];
 const nipVariations = ['nip', 'employee id', 'nomor induk pegawai'];
 const dateVariations = ['lastkgbdate', 'last kgb date', 'tanggal kgb terakhir'];
 
-function findHeader(headers: string[], variations: string[]): string | undefined {
-    return headers.find(header => variations.includes(header.toLowerCase().trim()));
+function findHeader(headers: (string | null | undefined)[], variations: string[]): string | undefined {
+    return headers.find(header => {
+        if (typeof header === 'string') {
+            return variations.includes(header.toLowerCase().trim());
+        }
+        return false;
+    }) as string | undefined;
 }
 
 function parseDate(dateValue: any): string | null {
@@ -71,7 +76,7 @@ export default function WelcomePage() {
                     throw new Error("Spreadsheet is empty or has no data rows.");
                 }
                 
-                const headers: string[] = jsonData[0];
+                const headers: (string | null | undefined)[] = jsonData[0];
                 const dataRows = jsonData.slice(1);
 
                 const nameHeader = findHeader(headers, nameVariations);
@@ -220,5 +225,3 @@ export default function WelcomePage() {
         </div>
     );
 }
-
-    
