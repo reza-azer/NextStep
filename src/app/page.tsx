@@ -292,7 +292,7 @@ export default function WelcomePage() {
             />
             <div className="w-full max-w-4xl mx-auto flex-grow flex flex-col justify-center">
                 <div className="text-center mb-8">
-                    <GradientText className="font-headline text-4xl font-bold">NextStep</GradientText>
+                    <GradientText className="font-headline text-6xl font-bold">NextStep</GradientText>
                     <p className="text-muted-foreground text-lg mt-2">Built to help you act, not just react. Use it anywhere. No login. No limits.</p>
                 </div>
                 {renderStep()}
