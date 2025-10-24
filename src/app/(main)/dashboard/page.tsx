@@ -5,8 +5,6 @@ import { EmployeeTable } from './components/employee-table';
 import { DataActions } from './components/data-actions';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
 
 export default function DashboardPage() {
   const { 
@@ -18,21 +16,6 @@ export default function DashboardPage() {
     importEmployees,
     exportEmployees,
   } = useEmployeeData();
-  const router = useRouter();
-
-  useEffect(() => {
-    if (isInitialized && employees.length === 0) {
-        // This is a bit of a hack to check if we came from the welcome page flow.
-        // A more robust solution might use query params or state management.
-        const navigationEntries = performance.getEntriesByType("navigation");
-        const fromWelcome = navigationEntries.length > 0 && (navigationEntries[0] as PerformanceNavigationTiming).type !== 'reload';
-        
-        if (!fromWelcome) {
-             router.replace('/');
-        }
-    }
-  }, [isInitialized, employees, router]);
-
 
   if (!isInitialized) {
     return (
