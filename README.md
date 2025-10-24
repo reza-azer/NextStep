@@ -89,3 +89,5 @@ function isKGBDue(tanggalKGBTerakhir: string): boolean {
 - Evaluasi kinerja
 - Sinkronisasi cloud (opsional, jika demand tinggi)
 
+
+Powered by firebase studio
