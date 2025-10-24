@@ -4,7 +4,7 @@ import { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { FileJson, Sparkles, PlusCircle, FileSpreadsheet, Newspaper, BarChart, FileUp, Wrench, Github, Linkedin, Instagram } from "lucide-react";
+import { FileJson, Sparkles, PlusCircle, FileUp, Newspaper, BarChart, Github, Linkedin, Instagram } from "lucide-react";
 import { useEmployeeData } from '@/hooks/use-employee-data';
 import { toast } from '@/hooks/use-toast';
 import * as XLSX from 'xlsx';
@@ -22,14 +22,11 @@ const monthMap: { [key: string]: number } = {
     'jul': 6, 'agu': 7, 'sep': 8, 'okt': 9, 'nov': 10, 'des': 11
 };
 
-function findHeader(headers: (string | null | undefined)[], variations: string[]): string | undefined {
+function findHeader(headers: string[], variations: string[]): string | undefined {
     return headers.find(header => {
-        if (typeof header === 'string') {
-            const trimmedHeader = header.trim().toLowerCase();
-            return variations.some(variation => trimmedHeader.includes(variation));
-        }
-        return false;
-    }) as string | undefined;
+        const trimmedHeader = header.trim().toLowerCase();
+        return variations.some(variation => trimmedHeader.includes(variation));
+    });
 }
 
 
@@ -84,11 +81,11 @@ export default function WelcomePage() {
                     throw new Error("Spreadsheet kosong atau tidak memiliki baris data.");
                 }
                 
-                let rawHeaders: (string | null | undefined)[] = jsonData[0];
-                 if (file.name.endsWith('.csv') && typeof rawHeaders[0] === 'string' && rawHeaders[0].includes(';')) {
+                let rawHeaders: (string | number | null | undefined)[] = jsonData[0];
+                if (file.name.endsWith('.csv') && typeof rawHeaders[0] === 'string' && rawHeaders[0].includes(';')) {
                     rawHeaders = rawHeaders[0].split(';');
                 }
-                const headers = rawHeaders.map(h => typeof h === 'string' ? h.trim() : h);
+                const headers = rawHeaders.map(h => String(h || '').trim());
 
                 const dataRows = jsonData.slice(1).map(row => {
                      if (file.name.endsWith('.csv') && typeof row[0] === 'string' && row[0].includes(';')) {
@@ -110,17 +107,15 @@ export default function WelcomePage() {
                     throw new Error(`Pemetaan kolom gagal. Kolom yang dibutuhkan tidak ada: ${missingColumns.join(', ')}. Silakan periksa header file Anda.`);
                 }
                 
-                const nameIndex = headers.findIndex(h => h?.toLowerCase() === nameHeader.toLowerCase());
-                const positionIndex = headers.findIndex(h => h?.toLowerCase() === positionHeader.toLowerCase());
-                const nipIndex = headers.findIndex(h => h?.toLowerCase() === nipHeader.toLowerCase());
+                const nameIndex = headers.findIndex(h => h.toLowerCase() === nameHeader.toLowerCase());
+                const positionIndex = headers.findIndex(h => h.toLowerCase() === positionHeader.toLowerCase());
+                const nipIndex = headers.findIndex(h => h.toLowerCase() === nipHeader.toLowerCase());
                 
                 const yearRegex = /\b(\d{4})\b/;
                 const yearColumns = headers.map((h, i) => {
-                    if (typeof h === 'string') {
-                        const match = h.match(yearRegex);
-                        if (match) {
-                            return { header: h, index: i, year: parseInt(match[1]) };
-                        }
+                    const match = h.match(yearRegex);
+                    if (match) {
+                        return { header: h, index: i, year: parseInt(match[1]) };
                     }
                     return null;
                 }).filter((col): col is { header: string; index: number; year: number } => col !== null)
