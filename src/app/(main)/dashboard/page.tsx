@@ -30,6 +30,7 @@ export default function DashboardPage() {
   const filteredAndSortedEmployees = useMemo(() => {
     const filtered = employees.filter(employee =>
       employee.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      employee.position.toLowerCase().includes(searchTerm.toLowerCase()) ||
       employee.nip.includes(searchTerm)
     );
 
@@ -88,7 +89,7 @@ export default function DashboardPage() {
                     <div className="relative">
                       <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                       <Input
-                          placeholder="Search by name or NIP..."
+                          placeholder="Search by name, position, or NIP..."
                           value={searchTerm}
                           onChange={(e) => setSearchTerm(e.target.value)}
                           className="w-full sm:w-64 pl-10"

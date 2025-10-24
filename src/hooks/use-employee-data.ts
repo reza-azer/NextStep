@@ -77,7 +77,7 @@ export function useEmployeeData() {
         const json = event.target?.result as string;
         // Simple validation, can be improved with Zod
         const newEmployees: Employee[] = JSON.parse(json);
-        if (Array.isArray(newEmployees) && newEmployees.every(e => e.id && e.name && e.nip && e.lastKGBDate)) {
+        if (Array.isArray(newEmployees) && newEmployees.every(e => e.id && e.name && e.position && e.nip && e.lastKGBDate)) {
           setEmployees(newEmployees);
           updateStorage(newEmployees);
           toast({

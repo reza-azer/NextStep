@@ -11,6 +11,7 @@ import * as XLSX from 'xlsx';
 import type { Employee } from '@/lib/types';
 
 const nameVariations = ['name', 'nama', 'nama lengkap'];
+const positionVariations = ['position', 'jabatan'];
 const nipVariations = ['nip', 'employee id', 'nomor induk pegawai'];
 const dateVariations = ['lastkgbdate', 'last kgb date', 'tanggal kgb terakhir'];
 
@@ -80,18 +81,21 @@ export default function WelcomePage() {
                 const dataRows = jsonData.slice(1);
 
                 const nameHeader = findHeader(headers, nameVariations);
+                const positionHeader = findHeader(headers, positionVariations);
                 const nipHeader = findHeader(headers, nipVariations);
                 const dateHeader = findHeader(headers, dateVariations);
 
-                if (!nameHeader || !nipHeader || !dateHeader) {
+                if (!nameHeader || !nipHeader || !dateHeader || !positionHeader) {
                     let missingColumns = [];
                     if (!nameHeader) missingColumns.push("Nama");
+                    if (!positionHeader) missingColumns.push("Jabatan");
                     if (!nipHeader) missingColumns.push("NIP");
                     if (!dateHeader) missingColumns.push("Tanggal KGB Terakhir");
                     throw new Error(`Column mapping failed. Missing required columns: ${missingColumns.join(', ')}. Please check your file headers.`);
                 }
                 
                 const nameIndex = headers.indexOf(nameHeader);
+                const positionIndex = headers.indexOf(positionHeader);
                 const nipIndex = headers.indexOf(nipHeader);
                 const dateIndex = headers.indexOf(dateHeader);
 
@@ -103,6 +107,7 @@ export default function WelcomePage() {
                     return {
                         id: crypto.randomUUID(),
                         name: row[nameIndex],
+                        position: row[positionIndex],
                         nip: String(row[nipIndex]),
                         lastKGBDate: lastKGBDate,
                     };

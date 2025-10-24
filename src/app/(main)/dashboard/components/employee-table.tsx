@@ -60,7 +60,8 @@ export function EmployeeTable({ employees, onUpdateEmployee, onDeleteEmployee }:
         <TableHeader>
           <TableRow>
             <TableHead className="w-[50px]">No.</TableHead>
-            <TableHead className="w-[250px]">Name</TableHead>
+            <TableHead>Name</TableHead>
+            <TableHead>Jabatan</TableHead>
             <TableHead>NIP</TableHead>
             <TableHead>Last KGB</TableHead>
             <TableHead>Next KGB</TableHead>
@@ -77,6 +78,7 @@ export function EmployeeTable({ employees, onUpdateEmployee, onDeleteEmployee }:
               <TableRow key={employee.id} className={isReminder ? 'bg-destructive/10' : ''}>
                 <TableCell className="font-medium">{index + 1}</TableCell>
                 <TableCell className="font-medium">{employee.name}</TableCell>
+                <TableCell>{employee.position}</TableCell>
                 <TableCell>{employee.nip}</TableCell>
                 <TableCell>{format(new Date(employee.lastKGBDate), 'dd MMM yyyy')}</TableCell>
                 <TableCell>{format(nextKGBDate, 'dd MMM yyyy')}</TableCell>

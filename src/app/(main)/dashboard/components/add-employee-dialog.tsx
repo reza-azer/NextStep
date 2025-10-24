@@ -26,6 +26,7 @@ import { toast } from '@/hooks/use-toast';
 
 const employeeSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters."),
+  position: z.string().min(2, "Position must be at least 2 characters."),
   nip: z.string().min(5, "NIP must be at least 5 characters."),
   lastKGBDate: z.date({
     required_error: "Last KGB date is required.",
@@ -47,15 +48,15 @@ export function AddEmployeeDialog({ children, employee, onSave }: AddEmployeeDia
   const form = useForm<EmployeeFormValues>({
     resolver: zodResolver(employeeSchema),
     defaultValues: isEditMode
-      ? { name: employee.name, nip: employee.nip, lastKGBDate: new Date(employee.lastKGBDate) }
-      : { name: '', nip: '' },
+      ? { name: employee.name, position: employee.position, nip: employee.nip, lastKGBDate: new Date(employee.lastKGBDate) }
+      : { name: '', position: '', nip: '' },
   });
 
   useEffect(() => {
     if (isOpen) {
       form.reset(isEditMode
-        ? { name: employee.name, nip: employee.nip, lastKGBDate: new Date(employee.lastKGBDate) }
-        : { name: '', nip: '', lastKGBDate: new Date() });
+        ? { name: employee.name, position: employee.position, nip: employee.nip, lastKGBDate: new Date(employee.lastKGBDate) }
+        : { name: '', position: '', nip: '', lastKGBDate: new Date() });
     }
   }, [isOpen, form, employee, isEditMode]);
 
@@ -94,6 +95,19 @@ export function AddEmployeeDialog({ children, employee, onSave }: AddEmployeeDia
                   <FormLabel>Full Name</FormLabel>
                   <FormControl>
                     <Input placeholder="John Doe" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="position"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Jabatan / Position</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Staff" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
