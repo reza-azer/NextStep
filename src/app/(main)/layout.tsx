@@ -38,7 +38,7 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
   const getTitle = () => {
     switch (pathname) {
       case '/dashboard':
-        return 'Dasbor';
+        return 'KGB Manager';
       default:
         return 'NextStep';
     }
@@ -65,11 +65,11 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
               <SidebarMenuButton
                 asChild
                 isActive={pathname === '/dashboard'}
-                tooltip={{ children: 'Dasbor' }}
+                tooltip={{ children: 'KGB Manager' }}
               >
                 <Link href="/dashboard">
                   <LayoutDashboard />
-                  <span>Dasbor</span>
+                  <span>KGB Manager</span>
                 </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
