@@ -14,6 +14,7 @@ import {
   SidebarProvider,
   SidebarRail,
   SidebarFooter,
+  SidebarTrigger,
 } from '@/components/ui/sidebar';
 import {
   AlertDialog,
@@ -26,7 +27,6 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
-import { Button } from '@/components/ui/button';
 
 export default function MainLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -47,12 +47,6 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
         <SidebarRail />
         <SidebarHeader className="p-4">
           <div className="flex items-center gap-2">
-            <Button variant="ghost" size="icon" className="shrink-0" asChild>
-              <Link href="/dashboard">
-                <FolderKanban className="text-primary" />
-                <span className="sr-only">NextStep</span>
-              </Link>
-            </Button>
             <h1 className="font-headline text-xl font-semibold text-primary truncate">
               NextStep
             </h1>
@@ -107,6 +101,9 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
       </Sidebar>
       <SidebarInset>
         <header className="flex h-14 items-center gap-4 border-b bg-background/80 backdrop-blur-sm px-6 sticky top-0 z-30">
+            <div className="md:hidden">
+              <SidebarTrigger />
+            </div>
             <div className="flex-1">
               <h1 className="font-headline text-lg font-semibold md:text-xl">
                 {getTitle()}
