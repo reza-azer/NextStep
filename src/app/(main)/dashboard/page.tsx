@@ -76,16 +76,15 @@ export default function DashboardPage() {
   if (!isInitialized) {
     return (
       <div className="space-y-6">
-        <div className="flex flex-col sm:flex-row items-center gap-2">
-           <Skeleton className="h-10 w-40" />
-           <div className="flex gap-2 ml-auto">
-             <Skeleton className="h-10 w-32" />
-             <Skeleton className="h-10 w-32" />
-           </div>
-        </div>
         <Card>
           <CardHeader>
-            <Skeleton className="h-8 w-48" />
+             <div className="flex flex-col sm:flex-row items-center gap-2">
+               <Skeleton className="h-8 w-48" />
+               <div className="flex gap-2 ml-auto">
+                 <Skeleton className="h-10 w-32" />
+                 <Skeleton className="h-10 w-32" />
+               </div>
+             </div>
           </CardHeader>
           <CardContent>
             <Skeleton className="h-64 w-full" />
@@ -97,23 +96,6 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-6">
-       <DataActions
-        onAddEmployee={addEmployee}
-        onExportJson={exportEmployees}
-        onExportXlsx={exportEmployeesToXLSX}
-        selectedIds={selectedIds}
-      >
-        <BulkActions 
-          selectedIds={selectedIds}
-          selectedCount={selectedIds.length}
-          onBulkUpdate={bulkUpdateEmployees}
-          onBulkDelete={() => {
-            bulkDeleteEmployees(selectedIds);
-            setSelectedIds([]);
-          }}
-          onClearSelection={() => setSelectedIds([])}
-        />
-      </DataActions>
       <Card>
         <CardHeader>
             <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
@@ -126,6 +108,27 @@ export default function DashboardPage() {
                       }
                     </CardDescription>
                 </div>
+                <div className="flex-grow" />
+                {selectedIds.length > 0 ? (
+                  <BulkActions 
+                    selectedIds={selectedIds}
+                    selectedCount={selectedIds.length}
+                    onBulkUpdate={bulkUpdateEmployees}
+                    onBulkDelete={() => {
+                      bulkDeleteEmployees(selectedIds);
+                      setSelectedIds([]);
+                    }}
+                    onClearSelection={() => setSelectedIds([])}
+                  />
+                ) : (
+                  <DataActions
+                    onAddEmployee={addEmployee}
+                    onExportJson={exportEmployees}
+                    onExportXlsx={exportEmployeesToXLSX}
+                  />
+                )}
+            </div>
+            <div className="mt-4 flex flex-col sm:flex-row justify-between sm:items-center gap-4">
                 <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
                     <div className="relative">
                       <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -148,21 +151,21 @@ export default function DashboardPage() {
                         </SelectContent>
                     </Select>
                 </div>
-            </div>
-            <div className="mt-4 flex items-center gap-2">
-                <span className="text-sm text-muted-foreground">Tampilan Status:</span>
-                 <ToggleGroup 
-                    type="single" 
-                    value={statusUnit} 
-                    onValueChange={(value) => {
-                        if (value) setStatusUnit(value as StatusUnit)
-                    }}
-                    size="sm"
-                >
-                    <ToggleGroupItem value="days">Hari</ToggleGroupItem>
-                    <ToggleGroupItem value="months">Bulan</ToggleGroupItem>
-                    <ToggleGroupItem value="years">Tahun</ToggleGroupItem>
-                </ToggleGroup>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-muted-foreground">Tampilan Status:</span>
+                  <ToggleGroup 
+                      type="single" 
+                      value={statusUnit} 
+                      onValueChange={(value) => {
+                          if (value) setStatusUnit(value as StatusUnit)
+                      }}
+                      size="sm"
+                  >
+                      <ToggleGroupItem value="days">Hari</ToggleGroupItem>
+                      <ToggleGroupItem value="months">Bulan</ToggleGroupItem>
+                      <ToggleGroupItem value="years">Tahun</ToggleGroupItem>
+                  </ToggleGroup>
+                </div>
             </div>
         </CardHeader>
         <CardContent>
