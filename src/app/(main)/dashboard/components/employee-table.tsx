@@ -39,8 +39,8 @@ export function EmployeeTable({ employees, onUpdateEmployee, onDeleteEmployee }:
     return (
       <div className="flex flex-col items-center justify-center text-center py-16 px-4 border-2 border-dashed rounded-lg bg-card/50">
         <Users className="w-16 h-16 text-muted-foreground mb-4" />
-        <h3 className="font-headline text-xl font-semibold">No Employees Yet</h3>
-        <p className="text-muted-foreground mt-1">Click "Add Employee" to get started.</p>
+        <h3 className="font-headline text-xl font-semibold">No Employees Found</h3>
+        <p className="text-muted-foreground mt-1">Try adjusting your search or add a new employee.</p>
       </div>
     );
   }
@@ -54,17 +54,12 @@ export function EmployeeTable({ employees, onUpdateEmployee, onDeleteEmployee }:
     });
   }
 
-  const sortedEmployees = [...employees].sort((a, b) => {
-    const { daysUntilNextKGB: daysA } = calculateKGB(a.lastKGBDate);
-    const { daysUntilNextKGB: daysB } = calculateKGB(b.lastKGBDate);
-    return daysA - daysB;
-  });
-
   return (
     <div className="rounded-md border">
       <Table>
         <TableHeader>
           <TableRow>
+            <TableHead className="w-[50px]">No.</TableHead>
             <TableHead className="w-[250px]">Name</TableHead>
             <TableHead>NIP</TableHead>
             <TableHead>Last KGB</TableHead>
@@ -74,12 +69,13 @@ export function EmployeeTable({ employees, onUpdateEmployee, onDeleteEmployee }:
           </TableRow>
         </TableHeader>
         <TableBody>
-          {sortedEmployees.map((employee) => {
+          {employees.map((employee, index) => {
             const { nextKGBDate, daysUntilNextKGB } = calculateKGB(employee.lastKGBDate);
             const isReminder = daysUntilNextKGB <= 30 && daysUntilNextKGB >= 0;
 
             return (
               <TableRow key={employee.id} className={isReminder ? 'bg-destructive/10' : ''}>
+                <TableCell className="font-medium">{index + 1}</TableCell>
                 <TableCell className="font-medium">{employee.name}</TableCell>
                 <TableCell>{employee.nip}</TableCell>
                 <TableCell>{format(new Date(employee.lastKGBDate), 'dd MMM yyyy')}</TableCell>

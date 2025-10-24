@@ -141,7 +141,7 @@ export default function WelcomePage() {
             />
             <div className="w-full max-w-4xl mx-auto">
                 <div className="text-center mb-8">
-                    <h1 className="font-headline text-4xl font-bold text-primary">KGB Assistant</h1>
+                    <h1 className="font-headline text-4xl font-bold text-primary">NextStep</h1>
                     <p className="text-muted-foreground text-lg mt-2">Welcome! How would you like to start?</p>
                 </div>
                 {renderStep()}

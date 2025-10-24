@@ -3,7 +3,7 @@ import './globals.css';
 import { Toaster } from "@/components/ui/toaster";
 
 export const metadata: Metadata = {
-  title: 'KGB Assistant',
+  title: 'NextStep',
   description: 'Manage employee KGB and analyze promotion candidates.',
 };
 
