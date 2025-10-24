@@ -67,8 +67,7 @@ function Calendar({
         Dropdown: (dropdownProps: DropdownProps) => {
           const { fromYear, fromMonth, fromDate, toYear, toMonth, toDate } =
             props;
-          const { formatters, caption, name } = dropdownProps;
-          const { format } = formatters;
+          const { caption, name } = dropdownProps;
 
           let selectValues: { label: string; value: string }[] = [];
           if (dropdownProps.name === "months") {
