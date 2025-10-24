@@ -84,18 +84,15 @@ export default function WelcomePage() {
                     throw new Error("Spreadsheet kosong atau tidak memiliki baris data.");
                 }
                 
-                let headers: (string | null | undefined)[] = jsonData[0];
-                if (file.name.endsWith('.csv')) {
-                    // For CSV, split the first row by semicolon if it's a single string
-                    if (typeof headers[0] === 'string' && headers[0].includes(';')) {
-                        headers = headers[0].split(';');
-                    }
+                let rawHeaders: (string | null | undefined)[] = jsonData[0];
+                 if (file.name.endsWith('.csv') && typeof rawHeaders[0] === 'string' && rawHeaders[0].includes(';')) {
+                    rawHeaders = rawHeaders[0].split(';');
                 }
+                const headers = rawHeaders.map(h => typeof h === 'string' ? h.trim() : h);
+
                 const dataRows = jsonData.slice(1).map(row => {
-                     if (file.name.endsWith('.csv')) {
-                        if (typeof row[0] === 'string' && row[0].includes(';')) {
-                           return row[0].split(';');
-                        }
+                     if (file.name.endsWith('.csv') && typeof row[0] === 'string' && row[0].includes(';')) {
+                        return row[0].split(';');
                      }
                      return row;
                 });
@@ -113,16 +110,16 @@ export default function WelcomePage() {
                     throw new Error(`Pemetaan kolom gagal. Kolom yang dibutuhkan tidak ada: ${missingColumns.join(', ')}. Silakan periksa header file Anda.`);
                 }
                 
-                const nameIndex = headers.indexOf(nameHeader);
-                const positionIndex = headers.indexOf(positionHeader);
-                const nipIndex = headers.indexOf(nipHeader);
+                const nameIndex = headers.findIndex(h => h?.toLowerCase() === nameHeader.toLowerCase());
+                const positionIndex = headers.findIndex(h => h?.toLowerCase() === positionHeader.toLowerCase());
+                const nipIndex = headers.findIndex(h => h?.toLowerCase() === nipHeader.toLowerCase());
                 
-                const yearRegex = /\b\d{4}\b/;
+                const yearRegex = /\b(\d{4})\b/;
                 const yearColumns = headers.map((h, i) => {
                     if (typeof h === 'string') {
                         const match = h.match(yearRegex);
                         if (match) {
-                            return { header: h, index: i, year: parseInt(match[0]) };
+                            return { header: h, index: i, year: parseInt(match[1]) };
                         }
                     }
                     return null;
@@ -308,5 +305,8 @@ export default function WelcomePage() {
             </footer>
         </div>
     );
+
+    
+}
 
     
