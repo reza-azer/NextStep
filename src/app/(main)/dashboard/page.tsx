@@ -21,7 +21,6 @@ export default function DashboardPage() {
     addEmployee, 
     updateEmployee, 
     deleteEmployee,
-    importEmployees,
     exportEmployees,
   } = useEmployeeData();
 
@@ -71,7 +70,6 @@ export default function DashboardPage() {
     <div className="space-y-6">
       <DataActions
         onAddEmployee={addEmployee}
-        onImport={importEmployees}
         onExport={exportEmployees}
       />
       <Card>
