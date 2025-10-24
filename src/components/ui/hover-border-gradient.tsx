@@ -1,7 +1,8 @@
-"use client";
-import React, { useState, useEffect, useRef } from "react";
 
-import { motion } from "motion/react";
+"use client";
+import React, { useState, useEffect } from "react";
+
+import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 
 type Direction = "TOP" | "LEFT" | "BOTTOM" | "RIGHT";
@@ -94,7 +95,7 @@ export function HoverBorderGradient({
         }}
         transition={{ ease: "linear", duration: duration ?? 1 }}
       />
-      <div className={cn("bg-background absolute z-1 flex-none inset-[2px]", props.style?.borderRadius ? `rounded-[${props.style.borderRadius}]` : "rounded-full")} />
+      <div className={cn("bg-background absolute z-1 flex-none inset-[2px] rounded-[inherit]")} />
     </Tag>
   );
 }
