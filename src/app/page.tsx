@@ -11,6 +11,7 @@ import * as XLSX from 'xlsx';
 import type { Employee } from '@/lib/types';
 import Link from 'next/link';
 import GradientText from '@/components/ui/gradient-text';
+import { HoverBorderGradient } from '@/components/ui/hover-border-gradient';
 
 const nameVariations = ['nama'];
 const positionVariations = ['jabatan'];
@@ -176,98 +177,76 @@ export default function WelcomePage() {
         switch (step) {
             case 'kgb_new':
                 return (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <button onClick={() => router.push('/dashboard')} className="text-left">
-                            <Card className="hover:bg-accent/50 hover:border-primary transition-all">
-                                <CardHeader>
-                                    <div className="flex items-center gap-4">
-                                        <PlusCircle className="w-8 h-8 text-primary" />
-                                        <div>
-                                            <CardTitle className="font-headline">Input Manual</CardTitle>
-                                            <CardDescription>Tambah data pegawai satu per satu melalui formulir.</CardDescription>
-                                        </div>
-                                    </div>
-                                </CardHeader>
-                            </Card>
-                        </button>
-                        <button onClick={() => spreadsheetInputRef.current?.click()} className="text-left">
-                            <Card className="hover:bg-accent/50 hover:border-primary transition-all">
-                                <CardHeader>
-                                    <div className="flex items-center gap-4">
-                                        <FileUp className="w-8 h-8 text-primary" />
-                                        <div>
-                                            <CardTitle className="font-headline">Impor dari Excel/CSV</CardTitle>
-                                            <CardDescription>Unggah file .xlsx atau .csv untuk impor massal.</CardDescription>
-                                        </div>
-                                    </div>
-                                </CardHeader>
-                            </Card>
-                        </button>
+                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <HoverBorderGradient as="button" onClick={() => router.push('/dashboard')} containerClassName="rounded-lg w-full" className="w-full bg-background">
+                             <div className="flex items-center gap-4 text-left p-4">
+                                <PlusCircle className="w-8 h-8 text-primary" />
+                                <div>
+                                    <h3 className="font-headline text-foreground">Input Manual</h3>
+                                    <p className="text-sm text-muted-foreground">Tambah data pegawai satu per satu melalui formulir.</p>
+                                </div>
+                            </div>
+                        </HoverBorderGradient>
+                         <HoverBorderGradient as="button" onClick={() => spreadsheetInputRef.current?.click()} containerClassName="rounded-lg w-full" className="w-full bg-background">
+                             <div className="flex items-center gap-4 text-left p-4">
+                                <FileUp className="w-8 h-8 text-primary" />
+                                <div>
+                                    <h3 className="font-headline text-foreground">Impor dari Excel/CSV</h3>
+                                    <p className="text-sm text-muted-foreground">Unggah file .xlsx atau .csv untuk impor massal.</p>
+                                </div>
+                            </div>
+                        </HoverBorderGradient>
                     </div>
                 );
             case 'kgb_start':
                 return (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                         <button onClick={() => setStep('kgb_new')} className="text-left">
-                             <Card className="hover:bg-accent/50 hover:border-primary transition-all">
-                                 <CardHeader>
-                                    <div className="flex items-center gap-4">
-                                        <Sparkles className="w-8 h-8 text-primary" />
-                                        <div>
-                                             <CardTitle className="font-headline">Buat Data Baru</CardTitle>
-                                             <CardDescription>Mulai dari awal dengan menambahkan data pegawai baru.</CardDescription>
-                                        </div>
-                                    </div>
-                                 </CardHeader>
-                             </Card>
-                         </button>
-                         <button onClick={() => jsonInputRef.current?.click()} className="text-left">
-                             <Card className="hover:bg-accent/50 hover:border-primary transition-all">
-                                 <CardHeader>
-                                     <div className="flex items-center gap-4">
-                                        <FileJson className="w-8 h-8 text-primary" />
-                                        <div>
-                                            <CardTitle className="font-headline">Impor Data yang Ada</CardTitle>
-                                            <CardDescription>Muat data dari file .json yang diekspor sebelumnya.</CardDescription>
-                                        </div>
-                                     </div>
-                                 </CardHeader>
-                             </Card>
-                         </button>
+                         <HoverBorderGradient as="button" onClick={() => setStep('kgb_new')} containerClassName="rounded-lg w-full" className="w-full bg-background">
+                             <div className="flex items-center gap-4 text-left p-4">
+                                <Sparkles className="w-8 h-8 text-primary" />
+                                <div>
+                                     <h3 className="font-headline text-foreground">Buat Data Baru</h3>
+                                     <p className="text-sm text-muted-foreground">Mulai dari awal dengan menambahkan data pegawai baru.</p>
+                                </div>
+                            </div>
+                         </HoverBorderGradient>
+                         <HoverBorderGradient as="button" onClick={() => jsonInputRef.current?.click()} containerClassName="rounded-lg w-full" className="w-full bg-background">
+                             <div className="flex items-center gap-4 text-left p-4">
+                                <FileJson className="w-8 h_8 text-primary" />
+                                <div>
+                                    <h3 className="font-headline text-foreground">Impor Data yang Ada</h3>
+                                    <p className="text-sm text-muted-foreground">Muat data dari file .json yang diekspor sebelumnya.</p>
+                                </div>
+                             </div>
+                         </HoverBorderGradient>
                     </div>
                 );
             case 'main':
             default:
                 return (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                         <button onClick={() => setStep('kgb_start')} className="text-left">
-                             <Card className="hover:bg-accent/50 hover:border-primary transition-all">
-                                 <CardHeader>
-                                    <div className="flex items-center gap-4">
-                                        <Newspaper className="w-8 h-8 text-primary" />
-                                        <div>
-                                             <CardTitle className="font-headline">KGB Manager</CardTitle>
-                                             <CardDescription>Kelola dan lacak Kenaikan Gaji Berkala pegawai.</CardDescription>
-                                        </div>
-                                    </div>
-                                 </CardHeader>
-                             </Card>
-                         </button>
-                         <div className="text-left cursor-not-allowed">
-                             <Card className="bg-muted/50 border-dashed">
-                                 <CardHeader>
-                                     <div className="flex items-center gap-4 text-muted-foreground">
-                                        <BarChart className="w-8 h-8" />
-                                        <div>
-                                            <CardTitle className="font-headline flex items-center">
-                                                Kenaikan Pangkat 
-                                                <span className="text-xs font-normal ml-2 py-0.5 px-1.5 bg-background rounded-full">Segera Hadir</span>
-                                            </CardTitle>
-                                            <CardDescription>Analisis dan proyeksikan kelayakan kenaikan pangkat.</CardDescription>
-                                        </div>
-                                     </div>
-                                 </CardHeader>
-                             </Card>
+                        <HoverBorderGradient as="button" onClick={() => setStep('kgb_start')} containerClassName="rounded-lg w-full" className="w-full bg-background">
+                            <div className="flex items-center gap-4 text-left p-4">
+                                <Newspaper className="w-8 h-8 text-primary" />
+                                <div>
+                                    <h3 className="font-headline text-foreground">KGB Manager</h3>
+                                    <p className="text-sm text-muted-foreground">Kelola dan lacak Kenaikan Gaji Berkala pegawai.</p>
+                                </div>
+                            </div>
+                        </HoverBorderGradient>
+                         <div className="text-left p-0.5 rounded-lg border-dashed border bg-muted/50 cursor-not-allowed">
+                            <div className="bg-background rounded-lg p-4 h-full">
+                                <div className="flex items-center gap-4 text-muted-foreground">
+                                <BarChart className="w-8 h-8" />
+                                <div>
+                                    <h3 className="font-headline flex items-center">
+                                        Kenaikan Pangkat 
+                                        <span className="text-xs font-normal ml-2 py-0.5 px-1.5 bg-muted rounded-full">Segera Hadir</span>
+                                    </h3>
+                                    <p className="text-sm">Analisis dan proyeksikan kelayakan kenaikan pangkat.</p>
+                                </div>
+                                </div>
+                            </div>
                          </div>
                     </div>
                 );

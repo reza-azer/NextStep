@@ -16,6 +16,7 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { HoverBorderGradient } from '@/components/ui/hover-border-gradient';
 
 const currentYear = new Date().getFullYear();
 
@@ -89,7 +90,9 @@ export function ExportExcelDialog({ children, onExport }: ExportExcelDialogProps
               )}
             />
             <DialogFooter>
-              <Button type="submit">Hasilkan Laporan</Button>
+               <HoverBorderGradient as="button" type="submit" containerClassName="rounded-md w-full sm:w-auto" className="bg-background text-foreground w-full sm:w-auto">
+                <span>Hasilkan Laporan</span>
+              </HoverBorderGradient>
             </DialogFooter>
           </form>
         </Form>

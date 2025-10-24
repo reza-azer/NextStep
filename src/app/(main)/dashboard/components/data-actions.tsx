@@ -6,6 +6,7 @@ import { FileDown, PlusCircle, FileSpreadsheet } from 'lucide-react';
 import { AddEmployeeDialog } from './add-employee-dialog';
 import type { Employee } from '@/lib/types';
 import { ExportExcelDialog } from './export-excel-dialog';
+import { HoverBorderGradient } from '@/components/ui/hover-border-gradient';
 
 interface DataActionsProps {
   onAddEmployee: (employee: Omit<Employee, 'id'>) => void;
@@ -17,23 +18,23 @@ export function DataActions({ onAddEmployee, onExportJson, onExportXlsx }: DataA
 
   return (
     <div className="flex flex-col sm:flex-row items-center gap-2">
-        <AddEmployeeDialog onSave={onAddEmployee}>
-          <Button>
-            <PlusCircle />
-            Tambah Pegawai
-          </Button>
-        </AddEmployeeDialog>
+      <AddEmployeeDialog onSave={onAddEmployee}>
+        <HoverBorderGradient as="button" containerClassName="rounded-md" className="bg-background text-foreground">
+          <PlusCircle />
+          <span>Tambah Pegawai</span>
+        </HoverBorderGradient>
+      </AddEmployeeDialog>
       <div className="flex gap-2 ml-auto">
         <ExportExcelDialog onExport={onExportXlsx}>
-          <Button variant="outline">
+           <HoverBorderGradient as="button" containerClassName="rounded-md" className="bg-background text-foreground">
             <FileSpreadsheet />
-            Ekspor XLSX
-          </Button>
+            <span>Ekspor XLSX</span>
+          </HoverBorderGradient>
         </ExportExcelDialog>
-        <Button variant="outline" onClick={onExportJson}>
+         <HoverBorderGradient as="button" onClick={onExportJson} containerClassName="rounded-md" className="bg-background text-foreground">
           <FileDown />
-          Ekspor JSON
-        </Button>
+          <span>Ekspor JSON</span>
+        </HoverBorderGradient>
       </div>
     </div>
   );

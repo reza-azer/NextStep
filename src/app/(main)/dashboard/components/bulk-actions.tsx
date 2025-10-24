@@ -34,6 +34,7 @@ import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import { toast } from '@/hooks/use-toast';
 import type { Employee } from '@/lib/types';
+import { HoverBorderGradient } from '@/components/ui/hover-border-gradient';
 
 interface BulkActionsProps {
   selectedIds: string[];
@@ -121,7 +122,9 @@ export function BulkActions({
                             )}
                         />
                         <DialogFooter>
-                            <Button type="submit">Perbarui Jabatan</Button>
+                            <HoverBorderGradient as="button" type="submit" containerClassName="rounded-md w-full sm:w-auto" className="bg-background text-foreground w-full sm:w-auto">
+                                <span>Perbarui Jabatan</span>
+                            </HoverBorderGradient>
                         </DialogFooter>
                     </form>
                 </Form>
@@ -177,7 +180,9 @@ export function BulkActions({
                             )}
                         />
                         <DialogFooter>
-                            <Button type="submit">Perbarui Tanggal</Button>
+                             <HoverBorderGradient as="button" type="submit" containerClassName="rounded-md w-full sm:w-auto" className="bg-background text-foreground w-full sm:w-auto">
+                                <span>Perbarui Tanggal</span>
+                            </HoverBorderGradient>
                         </DialogFooter>
                     </form>
                 </Form>

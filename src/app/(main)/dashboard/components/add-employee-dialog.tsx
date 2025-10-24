@@ -23,6 +23,7 @@ import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import type { Employee } from '@/lib/types';
 import { toast } from '@/hooks/use-toast';
+import { HoverBorderGradient } from '@/components/ui/hover-border-gradient';
 
 const employeeSchema = z.object({
   name: z.string().min(2, "Nama harus memiliki setidaknya 2 karakter."),
@@ -171,7 +172,9 @@ export function AddEmployeeDialog({ children, employee, onSave }: AddEmployeeDia
               )}
             />
             <DialogFooter>
-              <Button type="submit">Simpan perubahan</Button>
+               <HoverBorderGradient as="button" type="submit" containerClassName="rounded-md w-full sm:w-auto" className="bg-background text-foreground w-full sm:w-auto">
+                <span>Simpan perubahan</span>
+              </HoverBorderGradient>
             </DialogFooter>
           </form>
         </Form>
