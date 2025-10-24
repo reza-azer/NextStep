@@ -4,11 +4,12 @@ import { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { FileJson, Sparkles, PlusCircle, FileSpreadsheet, Newspaper, BarChart, FileUp, Wrench } from "lucide-react";
+import { FileJson, Sparkles, PlusCircle, FileSpreadsheet, Newspaper, BarChart, FileUp, Wrench, Github, Linkedin, Instagram } from "lucide-react";
 import { useEmployeeData } from '@/hooks/use-employee-data';
 import { toast } from '@/hooks/use-toast';
 import * as XLSX from 'xlsx';
 import type { Employee } from '@/lib/types';
+import Link from 'next/link';
 
 const nameVariations = ['nama'];
 const positionVariations = ['jabatan'];
@@ -273,7 +274,7 @@ export default function WelcomePage() {
     }
 
     return (
-        <div className="flex items-center justify-center min-h-screen bg-background p-4">
+        <div className="flex flex-col items-center justify-between min-h-screen bg-background p-4">
             <input
                 type="file"
                 ref={jsonInputRef}
@@ -288,10 +289,10 @@ export default function WelcomePage() {
                 accept=".xlsx, .csv"
                 className="hidden"
             />
-            <div className="w-full max-w-4xl mx-auto">
+            <div className="w-full max-w-4xl mx-auto flex-grow flex flex-col justify-center">
                 <div className="text-center mb-8">
                     <h1 className="font-headline text-4xl font-bold text-primary">NextStep</h1>
-                    <p className="text-muted-foreground text-lg mt-2">Selamat datang! Bagaimana Anda ingin memulai?</p>
+                    <p className="text-muted-foreground text-lg mt-2">Built to help you act, not just react. Use it anywhere. No login. No limits.</p>
                 </div>
                 {renderStep()}
                  {step !== 'main' && (
@@ -302,8 +303,20 @@ export default function WelcomePage() {
                     </div>
                 )}
             </div>
+            <footer className="w-full text-center py-4">
+                <div className="flex justify-center items-center gap-4 mb-2">
+                    <Link href="https://www.instagram.com/rezafahalafi/" target="_blank" rel="noopener noreferrer">
+                        <Instagram className="h-5 w-5 text-muted-foreground hover:text-primary transition-colors" />
+                    </Link>
+                    <Link href="https://www.linkedin.com/in/rezafahalafi/" target="_blank" rel="noopener noreferrer">
+                        <Linkedin className="h-5 w-5 text-muted-foreground hover:text-primary transition-colors" />
+                    </Link>
+                    <Link href="https://github.com/reza-azer" target="_blank" rel="noopener noreferrer">
+                        <Github className="h-5 w-5 text-muted-foreground hover:text-primary transition-colors" />
+                    </Link>
+                </div>
+                <p className="text-sm text-muted-foreground">&copy; 2025 NextStep - created by fahalafi</p>
+            </footer>
         </div>
     );
 }
-
-    
