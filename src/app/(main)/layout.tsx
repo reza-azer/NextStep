@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Award, FolderKanban, LayoutDashboard } from 'lucide-react';
+import { FolderKanban, LayoutDashboard } from 'lucide-react';
 import {
   Sidebar,
   SidebarContent,
@@ -23,8 +23,6 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
     switch (pathname) {
       case '/dashboard':
         return 'KGB Dashboard';
-      case '/promotion-analysis':
-        return 'Promotion Candidate Analysis';
       default:
         return 'KGB Assistant';
     }
@@ -57,18 +55,6 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
                 <Link href="/dashboard">
                   <LayoutDashboard />
                   <span>Dashboard</span>
-                </Link>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-            <SidebarMenuItem>
-              <SidebarMenuButton
-                asChild
-                isActive={pathname === '/promotion-analysis'}
-                tooltip={{ children: 'Promotion Analysis' }}
-              >
-                <Link href="/promotion-analysis">
-                  <Award />
-                  <span>Promotion Analysis</span>
                 </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>

@@ -40,6 +40,11 @@ export function useEmployeeData() {
     }
   };
 
+  const setInitialData = useCallback((data: Employee[]) => {
+    setEmployees(data);
+    updateStorage(data);
+  }, []);
+
   const addEmployee = useCallback((employee: Omit<Employee, 'id'>) => {
     setEmployees(prev => {
       const newEmployee = { ...employee, id: crypto.randomUUID() };
@@ -128,5 +133,6 @@ export function useEmployeeData() {
     deleteEmployee,
     importEmployees,
     exportEmployees,
+    setInitialData,
   };
 }

@@ -8,7 +8,7 @@ export function cn(...inputs: ClassValue[]) {
 
 export function calculateKGB(lastKGBDate: string | Date): { nextKGBDate: Date; daysUntilNextKGB: number } {
   const lastDate = new Date(lastKGBDate);
-  const nextKGBDate = addYears(lastDate, 2);
+  const nextKGBDate = addYears(lastDate, 1);
   const daysUntilNextKGB = differenceInDays(nextKGBDate, new Date());
   return { nextKGBDate, daysUntilNextKGB };
 }
