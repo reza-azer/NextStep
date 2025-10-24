@@ -70,6 +70,22 @@ export function useEmployeeData() {
     });
   }, []);
 
+  const bulkUpdateEmployees = useCallback((ids: string[], data: Partial<Omit<Employee, 'id'>>) => {
+    setEmployees(prev => {
+      const updatedEmployees = prev.map(e => ids.includes(e.id) ? { ...e, ...data } : e);
+      updateStorage(updatedEmployees);
+      return updatedEmployees;
+    });
+  }, []);
+
+  const bulkDeleteEmployees = useCallback((ids: string[]) => {
+    setEmployees(prev => {
+      const updatedEmployees = prev.filter(e => !ids.includes(e.id));
+      updateStorage(updatedEmployees);
+      return updatedEmployees;
+    });
+  }, []);
+
   const importEmployees = useCallback((file: File) => {
     const reader = new FileReader();
     reader.onload = (event) => {
@@ -134,5 +150,7 @@ export function useEmployeeData() {
     importEmployees,
     exportEmployees,
     setInitialData,
+    bulkUpdateEmployees,
+    bulkDeleteEmployees,
   };
 }

@@ -1,5 +1,6 @@
 'use client';
 
+import React from 'react';
 import {
   Table,
   TableBody,
@@ -21,6 +22,7 @@ import {
 } from "@/components/ui/alert-dialog"
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import { calculateKGB } from '@/lib/utils';
 import { format } from 'date-fns';
 import { Edit, Trash2, Users } from 'lucide-react';
@@ -32,9 +34,29 @@ interface EmployeeTableProps {
   employees: Employee[];
   onUpdateEmployee: (employee: Employee) => void;
   onDeleteEmployee: (id: string) => void;
+  selectedIds: string[];
+  onSelectionChange: (ids: string[]) => void;
 }
 
-export function EmployeeTable({ employees, onUpdateEmployee, onDeleteEmployee }: EmployeeTableProps) {
+export function EmployeeTable({ 
+  employees, 
+  onUpdateEmployee, 
+  onDeleteEmployee,
+  selectedIds,
+  onSelectionChange 
+}: EmployeeTableProps) {
+
+  const handleSelectAll = (checked: boolean) => {
+    onSelectionChange(checked ? employees.map(e => e.id) : []);
+  };
+
+  const handleSelectRow = (id: string, checked: boolean) => {
+    const newSelection = checked 
+      ? [...selectedIds, id] 
+      : selectedIds.filter(selectedId => selectedId !== id);
+    onSelectionChange(newSelection);
+  };
+
   if (employees.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center text-center py-16 px-4 border-2 border-dashed rounded-lg bg-card/50">
@@ -53,12 +75,22 @@ export function EmployeeTable({ employees, onUpdateEmployee, onDeleteEmployee }:
       variant: 'destructive'
     });
   }
+  
+  const isAllSelected = selectedIds.length > 0 && selectedIds.length === employees.length;
+  const isSomeSelected = selectedIds.length > 0 && !isAllSelected;
 
   return (
     <div className="rounded-md border">
       <Table>
         <TableHeader>
           <TableRow>
+            <TableHead className="w-[50px]">
+              <Checkbox 
+                checked={isAllSelected || isSomeSelected}
+                onCheckedChange={handleSelectAll}
+                aria-label="Select all"
+              />
+            </TableHead>
             <TableHead className="w-[50px]">No.</TableHead>
             <TableHead>Name</TableHead>
             <TableHead>Jabatan</TableHead>
@@ -73,9 +105,17 @@ export function EmployeeTable({ employees, onUpdateEmployee, onDeleteEmployee }:
           {employees.map((employee, index) => {
             const { nextKGBDate, daysUntilNextKGB } = calculateKGB(employee.lastKGBDate);
             const isReminder = daysUntilNextKGB <= 30 && daysUntilNextKGB >= 0;
+            const isSelected = selectedIds.includes(employee.id);
 
             return (
-              <TableRow key={employee.id} className={isReminder ? 'bg-destructive/10' : ''}>
+              <TableRow key={employee.id} data-state={isSelected ? "selected" : ""} className={isReminder ? 'bg-destructive/10' : ''}>
+                <TableCell>
+                  <Checkbox 
+                    checked={isSelected}
+                    onCheckedChange={(checked) => handleSelectRow(employee.id, !!checked)}
+                    aria-label={`Select ${employee.name}`}
+                  />
+                </TableCell>
                 <TableCell className="font-medium">{index + 1}</TableCell>
                 <TableCell className="font-medium">{employee.name}</TableCell>
                 <TableCell>{employee.position}</TableCell>

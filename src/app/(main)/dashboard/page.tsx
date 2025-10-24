@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import { useEmployeeData } from '@/hooks/use-employee-data';
 import { EmployeeTable } from './components/employee-table';
 import { DataActions } from './components/data-actions';
@@ -9,8 +9,10 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { calculateKGB } from '@/lib/utils';
-import type { Employee } from '@/lib/types';
 import { Search } from 'lucide-react';
+import { BulkActions } from './components/bulk-actions';
+import type { Employee } from '@/lib/types';
+
 
 type SortOption = 'closest' | 'furthest';
 
@@ -21,11 +23,15 @@ export default function DashboardPage() {
     addEmployee, 
     updateEmployee, 
     deleteEmployee,
+    bulkUpdateEmployees,
+    bulkDeleteEmployees,
     exportEmployees,
   } = useEmployeeData();
 
   const [searchTerm, setSearchTerm] = useState('');
   const [sortOption, setSortOption] = useState<SortOption>('closest');
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+
 
   const filteredAndSortedEmployees = useMemo(() => {
     const filtered = employees.filter(employee =>
@@ -34,7 +40,7 @@ export default function DashboardPage() {
       employee.nip.includes(searchTerm)
     );
 
-    return [...filtered].sort((a, b) => {
+    const sorted = [...filtered].sort((a, b) => {
       const { daysUntilNextKGB: daysA } = calculateKGB(a.lastKGBDate);
       const { daysUntilNextKGB: daysB } = calculateKGB(b.lastKGBDate);
       if (sortOption === 'closest') {
@@ -43,7 +49,21 @@ export default function DashboardPage() {
         return daysB - daysA;
       }
     });
+    return sorted;
   }, [employees, searchTerm, sortOption]);
+  
+  const handleSelectionChange = useCallback((ids: string[]) => {
+      // Filter out IDs that are not in the current view
+    const currentIds = new Set(filteredAndSortedEmployees.map(e => e.id));
+    const newSelectedIds = ids.filter(id => currentIds.has(id));
+    setSelectedIds(newSelectedIds);
+  }, [filteredAndSortedEmployees]);
+
+  // When search term changes, reset selection
+  React.useEffect(() => {
+    setSelectedIds([]);
+  }, [searchTerm]);
+
 
   if (!isInitialized) {
     return (
@@ -51,7 +71,6 @@ export default function DashboardPage() {
         <div className="flex flex-col sm:flex-row items-center gap-2">
            <Skeleton className="h-10 w-40" />
            <div className="flex gap-2 ml-auto">
-             <Skeleton className="h-10 w-32" />
              <Skeleton className="h-10 w-32" />
            </div>
         </div>
@@ -72,14 +91,26 @@ export default function DashboardPage() {
       <DataActions
         onAddEmployee={addEmployee}
         onExport={exportEmployees}
-      />
+        selectedIds={selectedIds}
+      >
+        <BulkActions 
+          selectedCount={selectedIds.length}
+          onBulkUpdate={bulkUpdateEmployees}
+          onBulkDelete={() => {
+            bulkDeleteEmployees(selectedIds);
+            setSelectedIds([]);
+          }}
+          onClearSelection={() => setSelectedIds([])}
+          selectedIds={selectedIds}
+        />
+      </DataActions>
       <Card>
         <CardHeader>
             <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
                 <div>
                     <CardTitle className="font-headline">Employee List</CardTitle>
                     <CardDescription>
-                      {searchTerm
+                      {searchTerm || selectedIds.length > 0
                         ? `Showing ${filteredAndSortedEmployees.length} of ${employees.length} employees.`
                         : `Total ${employees.length} employees.`
                       }
@@ -112,6 +143,8 @@ export default function DashboardPage() {
             employees={filteredAndSortedEmployees}
             onUpdateEmployee={updateEmployee}
             onDeleteEmployee={deleteEmployee}
+            selectedIds={selectedIds}
+            onSelectionChange={handleSelectionChange}
           />
         </CardContent>
       </Card>

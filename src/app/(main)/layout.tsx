@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { FolderKanban, LayoutDashboard, LogOut } from 'lucide-react';
+import { LayoutDashboard, LogOut, Moon, Sun } from 'lucide-react';
 import {
   Sidebar,
   SidebarContent,
@@ -26,11 +26,14 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/components/ui/alert-dialog"
+} from "@/components/ui/alert-dialog";
+import { Button } from '@/components/ui/button';
+import { useTheme } from '@/hooks/use-theme';
 
 export default function MainLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
+  const { theme, setTheme } = useTheme();
 
   const getTitle = () => {
     switch (pathname) {
@@ -40,6 +43,10 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
         return 'NextStep';
     }
   };
+
+  const toggleTheme = () => {
+    setTheme(theme === 'dark' ? 'light' : 'dark');
+  }
 
   return (
     <SidebarProvider>
@@ -109,6 +116,10 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
                 {getTitle()}
               </h1>
             </div>
+            <Button variant="ghost" size="icon" onClick={toggleTheme} aria-label="Toggle theme">
+              <Sun className="h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+              <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+            </Button>
         </header>
         <main className="flex-1 p-4 md:p-6 lg:p-8">
             {children}
