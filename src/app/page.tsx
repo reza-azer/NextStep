@@ -116,10 +116,19 @@ export default function WelcomePage() {
                 const nameIndex = headers.indexOf(nameHeader);
                 const positionIndex = headers.indexOf(positionHeader);
                 const nipIndex = headers.indexOf(nipHeader);
+                
+                const yearRegex = /\b\d{4}\b/;
+                const yearColumns = headers.map((h, i) => {
+                    if (typeof h === 'string') {
+                        const match = h.match(yearRegex);
+                        if (match) {
+                            return { header: h, index: i, year: parseInt(match[0]) };
+                        }
+                    }
+                    return null;
+                }).filter((col): col is { header: string; index: number; year: number } => col !== null)
+                  .sort((a, b) => a.year - b.year);
 
-                const yearColumns = headers.map((h, i) => ({ header: h, index: i }))
-                    .filter(col => typeof col.header === 'string' && /^\d{4}$/.test(col.header.trim()))
-                    .sort((a, b) => parseInt(a.header!.trim()) - parseInt(b.header!.trim()));
 
                 if (yearColumns.length === 0) {
                      throw new Error("Tidak ditemukan kolom tahun (misalnya, 2023, 2024) di header.");
@@ -130,7 +139,7 @@ export default function WelcomePage() {
                     // Iterate backwards through year columns to find the latest valid month
                     for (let i = yearColumns.length - 1; i >= 0; i--) {
                         const yearCol = yearColumns[i];
-                        const year = parseInt(yearCol.header!.trim());
+                        const year = yearCol.year;
                         const monthVal = row[yearCol.index];
                         
                         if (typeof monthVal === 'string' && monthVal.trim().length >= 3) {
@@ -299,4 +308,5 @@ export default function WelcomePage() {
             </footer>
         </div>
     );
-}
+
+    
