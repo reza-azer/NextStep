@@ -29,6 +29,7 @@ import { Edit, Trash2, Users } from 'lucide-react';
 import type { Employee } from '@/lib/types';
 import { AddEmployeeDialog } from './add-employee-dialog';
 import { toast } from '@/hooks/use-toast';
+import type { StatusUnit } from '../page';
 
 interface EmployeeTableProps {
   employees: Employee[];
@@ -36,6 +37,7 @@ interface EmployeeTableProps {
   onDeleteEmployee: (id: string) => void;
   selectedIds: string[];
   onSelectionChange: (ids: string[]) => void;
+  statusUnit: StatusUnit;
 }
 
 export function EmployeeTable({ 
@@ -43,7 +45,8 @@ export function EmployeeTable({
   onUpdateEmployee, 
   onDeleteEmployee,
   selectedIds,
-  onSelectionChange 
+  onSelectionChange,
+  statusUnit
 }: EmployeeTableProps) {
 
   const handleSelectAll = (checked: boolean) => {
@@ -55,6 +58,19 @@ export function EmployeeTable({
       ? [...selectedIds, id] 
       : selectedIds.filter(selectedId => selectedId !== id);
     onSelectionChange(newSelection);
+  };
+
+  const getStatusText = (days: number, months: number, years: number) => {
+    if (days <= 0) return 'Lewat waktu';
+    switch (statusUnit) {
+      case 'years':
+        return years > 0 ? `${years} tahun lagi` : months > 0 ? `${months} bulan lagi` : `${days} hari lagi`;
+      case 'months':
+        return months > 0 ? `${months} bulan lagi` : `${days} hari lagi`;
+      case 'days':
+      default:
+        return `${days} hari lagi`;
+    }
   };
 
   if (employees.length === 0) {
@@ -103,7 +119,7 @@ export function EmployeeTable({
         </TableHeader>
         <TableBody>
           {employees.map((employee, index) => {
-            const { nextKGBDate, daysUntilNextKGB } = calculateKGB(employee.lastKGBDate);
+            const { nextKGBDate, daysUntilNextKGB, monthsUntilNextKGB, yearsUntilNextKGB } = calculateKGB(employee.lastKGBDate);
             const isReminder = daysUntilNextKGB <= 30 && daysUntilNextKGB >= 0;
             const isSelected = selectedIds.includes(employee.id);
 
@@ -127,7 +143,7 @@ export function EmployeeTable({
                     <Badge variant="destructive">Pengingat</Badge>
                   ) : (
                     <Badge variant="secondary">
-                      {daysUntilNextKGB > 0 ? `${daysUntilNextKGB} hari lagi` : 'Lewat waktu'}
+                       {getStatusText(daysUntilNextKGB, monthsUntilNextKGB, yearsUntilNextKGB)}
                     </Badge>
                   )}
                 </TableCell>

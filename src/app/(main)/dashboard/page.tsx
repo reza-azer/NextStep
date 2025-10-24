@@ -8,11 +8,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Skeleton } from '@/components/ui/skeleton';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { calculateKGB } from '@/lib/utils';
 import { Search } from 'lucide-react';
 import { BulkActions } from './components/bulk-actions';
 
 type SortOption = 'closest' | 'furthest' | 'name-asc' | 'name-desc';
+export type StatusUnit = 'days' | 'months' | 'years';
+
 
 export default function DashboardPage() {
   const { 
@@ -30,6 +33,7 @@ export default function DashboardPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [sortOption, setSortOption] = useState<SortOption>('closest');
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [statusUnit, setStatusUnit] = useState<StatusUnit>('days');
 
 
   const filteredAndSortedEmployees = useMemo(() => {
@@ -145,6 +149,21 @@ export default function DashboardPage() {
                     </Select>
                 </div>
             </div>
+            <div className="mt-4 flex items-center gap-2">
+                <span className="text-sm text-muted-foreground">Tampilan Status:</span>
+                 <ToggleGroup 
+                    type="single" 
+                    value={statusUnit} 
+                    onValueChange={(value) => {
+                        if (value) setStatusUnit(value as StatusUnit)
+                    }}
+                    size="sm"
+                >
+                    <ToggleGroupItem value="days">Hari</ToggleGroupItem>
+                    <ToggleGroupItem value="months">Bulan</ToggleGroupItem>
+                    <ToggleGroupItem value="years">Tahun</ToggleGroupItem>
+                </ToggleGroup>
+            </div>
         </CardHeader>
         <CardContent>
           <EmployeeTable 
@@ -153,6 +172,7 @@ export default function DashboardPage() {
             onDeleteEmployee={deleteEmployee}
             selectedIds={selectedIds}
             onSelectionChange={handleSelectionChange}
+            statusUnit={statusUnit}
           />
         </CardContent>
       </Card>
