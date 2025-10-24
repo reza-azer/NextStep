@@ -69,16 +69,19 @@ export default function WelcomePage() {
         reader.onload = (e) => {
             try {
                 const data = e.target?.result;
-                let workbook;
+                let jsonData: any[];
+
                 if (file.name.endsWith('.csv')) {
-                    // For CSV files, we need to detect the separator. Let's assume semicolon for now.
-                    workbook = XLSX.read(data, { type: 'string', FS: ';' });
+                    const text = data as string;
+                    const lines = text.split(/\r?\n/);
+                    jsonData = lines.map(line => line.split(';'));
                 } else {
-                    workbook = XLSX.read(data, { type: 'binary', cellDates: true, dateNF: 'yyyy-mm-dd' });
+                    const workbook = XLSX.read(data, { type: 'binary', cellDates: true, dateNF: 'yyyy-mm-dd' });
+                    const sheetName = workbook.SheetNames[0];
+                    const worksheet = workbook.Sheets[sheetName];
+                    jsonData = XLSX.utils.sheet_to_json(worksheet, {header: 1});
                 }
-                const sheetName = workbook.SheetNames[0];
-                const worksheet = workbook.Sheets[sheetName];
-                const jsonData: any[] = XLSX.utils.sheet_to_json(worksheet, {header: 1});
+
 
                 if(jsonData.length < 2) {
                     throw new Error("Spreadsheet is empty or has no data rows.");
