@@ -3,6 +3,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import type { Employee } from '@/lib/types';
 import { toast } from '@/hooks/use-toast';
+import * as XLSX from 'xlsx';
+import { addYears } from 'date-fns';
 
 const STORAGE_KEY = 'kgb-assistant-employees';
 
@@ -91,11 +93,9 @@ export function useEmployeeData() {
     reader.onload = (event) => {
       try {
         const json = event.target?.result as string;
-        // Simple validation, can be improved with Zod
         const newEmployees: Employee[] = JSON.parse(json);
         if (Array.isArray(newEmployees) && newEmployees.every(e => e.id && e.name && e.position && e.nip && e.lastKGBDate)) {
-          setEmployees(newEmployees);
-          updateStorage(newEmployees);
+          setInitialData(newEmployees);
           toast({
             title: "Sukses",
             description: `Berhasil mengimpor ${newEmployees.length} data pegawai.`,
@@ -113,7 +113,7 @@ export function useEmployeeData() {
       }
     };
     reader.readAsText(file);
-  }, []);
+  }, [setInitialData]);
 
   const exportEmployees = useCallback(() => {
     if (employees.length === 0) {
@@ -140,6 +140,57 @@ export function useEmployeeData() {
         description: "Data pegawai berhasil diekspor.",
     });
   }, [employees]);
+
+  const exportEmployeesToXLSX = useCallback((startYear: number, endYear: number) => {
+     if (employees.length === 0) {
+      toast({
+        variant: "destructive",
+        title: "Ekspor Gagal",
+        description: "Tidak ada data pegawai untuk diekspor.",
+      });
+      return;
+    }
+
+    const monthNames = ["JAN", "FEB", "MAR", "APR", "MEI", "JUN", "JUL", "AGU", "SEP", "OKT", "NOV", "DES"];
+    const years = Array.from({ length: endYear - startYear + 1 }, (_, i) => startYear + i);
+    const headers = ["No", "NIP", "NAMA", ...years.map(String), "JABATAN"];
+    
+    const data = employees.map((employee, index) => {
+      const row: (string | number)[] = [index + 1, employee.nip, employee.name];
+      const kgbDates: Date[] = [];
+      let currentKGB = new Date(employee.lastKGBDate);
+
+      // Find all KGB dates within the range
+      while (currentKGB.getFullYear() <= endYear) {
+        if(currentKGB.getFullYear() >= startYear) {
+          kgbDates.push(new Date(currentKGB.getTime()));
+        }
+        currentKGB = addYears(currentKGB, 2);
+      }
+      
+      // Populate year columns
+      years.forEach(year => {
+        const kgbInYear = kgbDates.find(d => d.getFullYear() === year);
+        row.push(kgbInYear ? monthNames[kgbInYear.getMonth()] : '0');
+      });
+
+      row.push(employee.position);
+      return row;
+    });
+
+    const worksheet = XLSX.utils.aoa_to_sheet([headers, ...data]);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Data KGB Pegawai");
+
+    const date = new Date().toISOString().split('T')[0];
+    XLSX.writeFile(workbook, `kgb-report-${startYear}-${endYear}-${date}.xlsx`);
+    
+    toast({
+      title: "Sukses",
+      description: `Laporan KGB untuk tahun ${startYear}-${endYear} berhasil diekspor.`,
+    });
+
+  }, [employees]);
   
   return {
     employees,
@@ -152,5 +203,6 @@ export function useEmployeeData() {
     setInitialData,
     bulkUpdateEmployees,
     bulkDeleteEmployees,
+    exportEmployeesToXLSX,
   };
 }

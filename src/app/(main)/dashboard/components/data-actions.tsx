@@ -2,18 +2,20 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { FileDown, PlusCircle } from 'lucide-react';
+import { FileDown, PlusCircle, FileSpreadsheet } from 'lucide-react';
 import { AddEmployeeDialog } from './add-employee-dialog';
 import type { Employee } from '@/lib/types';
+import { ExportExcelDialog } from './export-excel-dialog';
 
 interface DataActionsProps {
   onAddEmployee: (employee: Omit<Employee, 'id'>) => void;
-  onExport: () => void;
+  onExportJson: () => void;
+  onExportXlsx: (startYear: number, endYear: number) => void;
   selectedIds: string[];
   children: React.ReactNode;
 }
 
-export function DataActions({ onAddEmployee, onExport, selectedIds, children }: DataActionsProps) {
+export function DataActions({ onAddEmployee, onExportJson, onExportXlsx, selectedIds, children }: DataActionsProps) {
 
   return (
     <div className="flex flex-col sm:flex-row items-center gap-2">
@@ -28,7 +30,13 @@ export function DataActions({ onAddEmployee, onExport, selectedIds, children }: 
         </AddEmployeeDialog>
       )}
       <div className="flex gap-2 ml-auto">
-        <Button variant="outline" onClick={onExport}>
+        <ExportExcelDialog onExport={onExportXlsx}>
+          <Button variant="outline">
+            <FileSpreadsheet />
+            Ekspor XLSX
+          </Button>
+        </ExportExcelDialog>
+        <Button variant="outline" onClick={onExportJson}>
           <FileDown />
           Ekspor JSON
         </Button>

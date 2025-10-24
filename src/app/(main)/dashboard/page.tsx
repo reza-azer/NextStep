@@ -26,6 +26,7 @@ export default function DashboardPage() {
     bulkUpdateEmployees,
     bulkDeleteEmployees,
     exportEmployees,
+    exportEmployeesToXLSX
   } = useEmployeeData();
 
   const [searchTerm, setSearchTerm] = useState('');
@@ -90,7 +91,8 @@ export default function DashboardPage() {
     <div className="space-y-6">
       <DataActions
         onAddEmployee={addEmployee}
-        onExport={exportEmployees}
+        onExportJson={exportEmployees}
+        onExportXlsx={exportEmployeesToXLSX}
         selectedIds={selectedIds}
       >
         <BulkActions 
