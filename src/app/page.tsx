@@ -4,7 +4,7 @@ import { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { FileJson, Sparkles, PlusCircle, FileSpreadsheet } from "lucide-react";
+import { FileJson, Sparkles, PlusCircle, FileSpreadsheet, Newspaper, BarChart, FileUp, Wrench } from "lucide-react";
 import { useEmployeeData } from '@/hooks/use-employee-data';
 import { toast } from '@/hooks/use-toast';
 import * as XLSX from 'xlsx';
@@ -22,11 +22,13 @@ const monthMap: { [key: string]: number } = {
 function findHeader(headers: (string | null | undefined)[], variations: string[]): string | undefined {
     return headers.find(header => {
         if (typeof header === 'string') {
-            return variations.includes(header.toLowerCase().trim());
+            const trimmedHeader = header.trim().toLowerCase();
+            return variations.some(variation => trimmedHeader.includes(variation));
         }
         return false;
     }) as string | undefined;
 }
+
 
 function parseDate(dateValue: any): string | null {
     if (!dateValue) return null;
@@ -47,7 +49,7 @@ function parseDate(dateValue: any): string | null {
 }
 
 export default function WelcomePage() {
-    const [step, setStep] = useState('initial');
+    const [step, setStep] = useState('main'); // main -> kgb_start -> kgb_new
     const { importEmployees: importJson, setInitialData } = useEmployeeData();
     const router = useRouter();
     const jsonInputRef = useRef<HTMLInputElement>(null);
@@ -69,26 +71,32 @@ export default function WelcomePage() {
         reader.onload = (e) => {
             try {
                 const data = e.target?.result;
-                let jsonData: any[];
-
-                if (file.name.endsWith('.csv')) {
-                    const text = data as string;
-                    const lines = text.split(/\r?\n/);
-                    jsonData = lines.map(line => line.split(';'));
-                } else {
-                    const workbook = XLSX.read(data, { type: 'binary', cellDates: true, dateNF: 'yyyy-mm-dd' });
-                    const sheetName = workbook.SheetNames[0];
-                    const worksheet = workbook.Sheets[sheetName];
-                    jsonData = XLSX.utils.sheet_to_json(worksheet, {header: 1});
-                }
-
+                const workbook = XLSX.read(data, { type: 'binary', cellDates: true, dateNF: 'yyyy-mm-dd' });
+                const sheetName = workbook.SheetNames[0];
+                const worksheet = workbook.Sheets[sheetName];
+                
+                const jsonData: any[][] = XLSX.utils.sheet_to_json(worksheet, {header: 1});
 
                 if(jsonData.length < 2) {
                     throw new Error("Spreadsheet kosong atau tidak memiliki baris data.");
                 }
                 
-                const headers: (string | null | undefined)[] = jsonData[0];
-                const dataRows = jsonData.slice(1);
+                let headers: (string | null | undefined)[] = jsonData[0];
+                if (file.name.endsWith('.csv')) {
+                    // For CSV, split the first row by semicolon if it's a single string
+                    if (typeof headers[0] === 'string' && headers[0].includes(';')) {
+                        headers = headers[0].split(';');
+                    }
+                }
+                const dataRows = jsonData.slice(1).map(row => {
+                     if (file.name.endsWith('.csv')) {
+                        if (typeof row[0] === 'string' && row[0].includes(';')) {
+                           return row[0].split(';');
+                        }
+                     }
+                     return row;
+                });
+
 
                 const nameHeader = findHeader(headers, nameVariations);
                 const positionHeader = findHeader(headers, positionVariations);
@@ -159,16 +167,12 @@ export default function WelcomePage() {
             }
         };
         
-        if (file.name.endsWith('.csv')) {
-             reader.readAsText(file); // For CSV, read as text
-        } else {
-             reader.readAsBinaryString(file); // For XLSX
-        }
+        reader.readAsBinaryString(file);
     };
 
     const renderStep = () => {
         switch (step) {
-            case 'new':
+            case 'kgb_new':
                 return (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <button onClick={() => router.push('/dashboard')} className="text-left">
@@ -188,7 +192,7 @@ export default function WelcomePage() {
                             <Card className="hover:bg-accent/50 hover:border-primary transition-all">
                                 <CardHeader>
                                     <div className="flex items-center gap-4">
-                                        <FileSpreadsheet className="w-8 h-8 text-primary" />
+                                        <FileUp className="w-8 h-8 text-primary" />
                                         <div>
                                             <CardTitle className="font-headline">Impor dari Excel/CSV</CardTitle>
                                             <CardDescription>Unggah file .xlsx atau .csv untuk impor massal.</CardDescription>
@@ -199,11 +203,10 @@ export default function WelcomePage() {
                         </button>
                     </div>
                 );
-            case 'initial':
-            default:
+            case 'kgb_start':
                 return (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                         <button onClick={() => setStep('new')} className="text-left">
+                         <button onClick={() => setStep('kgb_new')} className="text-left">
                              <Card className="hover:bg-accent/50 hover:border-primary transition-all">
                                  <CardHeader>
                                     <div className="flex items-center gap-4">
@@ -223,12 +226,47 @@ export default function WelcomePage() {
                                         <FileJson className="w-8 h-8 text-primary" />
                                         <div>
                                             <CardTitle className="font-headline">Impor Data yang Ada</CardTitle>
-                                            <CardDescription>Muat data pegawai dari file .json yang diekspor sebelumnya.</CardDescription>
+                                            <CardDescription>Muat data dari file .json yang diekspor sebelumnya.</CardDescription>
                                         </div>
                                      </div>
                                  </CardHeader>
                              </Card>
                          </button>
+                    </div>
+                );
+            case 'main':
+            default:
+                return (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                         <button onClick={() => setStep('kgb_start')} className="text-left">
+                             <Card className="hover:bg-accent/50 hover:border-primary transition-all">
+                                 <CardHeader>
+                                    <div className="flex items-center gap-4">
+                                        <Newspaper className="w-8 h-8 text-primary" />
+                                        <div>
+                                             <CardTitle className="font-headline">KGB Manager</CardTitle>
+                                             <CardDescription>Kelola dan lacak Kenaikan Gaji Berkala pegawai.</CardDescription>
+                                        </div>
+                                    </div>
+                                 </CardHeader>
+                             </Card>
+                         </button>
+                         <div className="text-left cursor-not-allowed">
+                             <Card className="bg-muted/50 border-dashed">
+                                 <CardHeader>
+                                     <div className="flex items-center gap-4 text-muted-foreground">
+                                        <BarChart className="w-8 h-8" />
+                                        <div>
+                                            <CardTitle className="font-headline flex items-center">
+                                                Kenaikan Pangkat 
+                                                <span className="text-xs font-normal ml-2 py-0.5 px-1.5 bg-background rounded-full">Segera Hadir</span>
+                                            </CardTitle>
+                                            <CardDescription>Analisis dan proyeksikan kelayakan kenaikan pangkat.</CardDescription>
+                                        </div>
+                                     </div>
+                                 </CardHeader>
+                             </Card>
+                         </div>
                     </div>
                 );
         }
@@ -256,9 +294,9 @@ export default function WelcomePage() {
                     <p className="text-muted-foreground text-lg mt-2">Selamat datang! Bagaimana Anda ingin memulai?</p>
                 </div>
                 {renderStep()}
-                 {step !== 'initial' && (
+                 {step !== 'main' && (
                     <div className="mt-8 text-center">
-                        <Button variant="link" onClick={() => setStep('initial')}>
+                        <Button variant="link" onClick={() => setStep(step === 'kgb_new' ? 'kgb_start' : 'main')}>
                             &larr; Kembali
                         </Button>
                     </div>
@@ -267,3 +305,5 @@ export default function WelcomePage() {
         </div>
     );
 }
+
+    
