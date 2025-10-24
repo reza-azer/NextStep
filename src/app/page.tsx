@@ -10,10 +10,14 @@ import { toast } from '@/hooks/use-toast';
 import * as XLSX from 'xlsx';
 import type { Employee } from '@/lib/types';
 
-const nameVariations = ['name', 'nama', 'nama lengkap'];
-const positionVariations = ['position', 'jabatan'];
-const nipVariations = ['nip', 'employee id', 'nomor induk pegawai'];
-const dateVariations = ['lastkgbdate', 'last kgb date', 'tanggal kgb terakhir'];
+const nameVariations = ['nama'];
+const positionVariations = ['jabatan'];
+const nipVariations = ['nip'];
+
+const monthMap: { [key: string]: number } = {
+    'jan': 0, 'feb': 1, 'mar': 2, 'apr': 3, 'mei': 4, 'jun': 5,
+    'jul': 6, 'agu': 7, 'sep': 8, 'okt': 9, 'nov': 10, 'des': 11
+};
 
 function findHeader(headers: (string | null | undefined)[], variations: string[]): string | undefined {
     return headers.find(header => {
@@ -27,16 +31,13 @@ function findHeader(headers: (string | null | undefined)[], variations: string[]
 function parseDate(dateValue: any): string | null {
     if (!dateValue) return null;
 
-    // Handle Excel date serial number
     if (typeof dateValue === 'number' && dateValue > 1) {
-        // Excel serial date starts from 1 for 1900-01-01. XLSX library handles this.
         const date = XLSX.SSF.parse_date_code(dateValue);
         if (date) {
             return new Date(date.y, date.m - 1, date.d, date.H, date.M, date.S).toISOString();
         }
     }
     
-    // Handle date string
     const d = new Date(dateValue);
     if (!isNaN(d.getTime())) {
         return d.toISOString();
@@ -68,7 +69,7 @@ export default function WelcomePage() {
         reader.onload = (e) => {
             try {
                 const data = e.target?.result;
-                const workbook = XLSX.read(data, { type: 'binary' });
+                const workbook = XLSX.read(data, { type: 'binary', cellDates: true, dateNF: 'yyyy-mm-dd' });
                 const sheetName = workbook.SheetNames[0];
                 const worksheet = workbook.Sheets[sheetName];
                 const jsonData: any[] = XLSX.utils.sheet_to_json(worksheet, {header: 1});
@@ -83,38 +84,60 @@ export default function WelcomePage() {
                 const nameHeader = findHeader(headers, nameVariations);
                 const positionHeader = findHeader(headers, positionVariations);
                 const nipHeader = findHeader(headers, nipVariations);
-                const dateHeader = findHeader(headers, dateVariations);
-
-                if (!nameHeader || !nipHeader || !dateHeader || !positionHeader) {
+                
+                if (!nameHeader || !nipHeader || !positionHeader) {
                     let missingColumns = [];
-                    if (!nameHeader) missingColumns.push("Nama");
-                    if (!positionHeader) missingColumns.push("Jabatan");
+                    if (!nameHeader) missingColumns.push("NAMA");
+                    if (!positionHeader) missingColumns.push("JABATAN");
                     if (!nipHeader) missingColumns.push("NIP");
-                    if (!dateHeader) missingColumns.push("Tanggal KGB Terakhir");
                     throw new Error(`Column mapping failed. Missing required columns: ${missingColumns.join(', ')}. Please check your file headers.`);
                 }
                 
                 const nameIndex = headers.indexOf(nameHeader);
                 const positionIndex = headers.indexOf(positionHeader);
                 const nipIndex = headers.indexOf(nipHeader);
-                const dateIndex = headers.indexOf(dateHeader);
+
+                const yearColumns = headers.map((h, i) => ({ header: h, index: i }))
+                    .filter(col => typeof col.header === 'string' && /^\d{4}$/.test(col.header))
+                    .sort((a, b) => parseInt(a.header!) - parseInt(b.header!));
+
+                if (yearColumns.length === 0) {
+                    throw new Error("No year columns (e.g., 2023, 2024) found in the header.");
+                }
 
                 const employees: Employee[] = dataRows.map((row: any[]) => {
-                    const lastKGBDate = parseDate(row[dateIndex]);
+                    let lastKGBDate: string | null = null;
+                    // Iterate backwards through year columns to find the latest valid month
+                    for (let i = yearColumns.length - 1; i >= 0; i--) {
+                        const yearCol = yearColumns[i];
+                        const year = parseInt(yearCol.header!);
+                        const monthVal = row[yearCol.index];
+                        
+                        if (typeof monthVal === 'string' && monthVal.trim().length >= 3) {
+                            const monthStr = monthVal.trim().toLowerCase().substring(0, 3);
+                            if (monthStr in monthMap) {
+                                const monthIndex = monthMap[monthStr];
+                                lastKGBDate = new Date(year, monthIndex, 1).toISOString();
+                                break; // Found the latest one, so we can stop
+                            }
+                        }
+                    }
+
                     if (!lastKGBDate) {
                         return null;
                     }
+
                     return {
                         id: crypto.randomUUID(),
                         name: row[nameIndex],
                         position: row[positionIndex],
-                        nip: String(row[nipIndex]),
+                        nip: String(row[nipIndex]).replace(/'/g, ''), // Clean NIP
                         lastKGBDate: lastKGBDate,
                     };
                 }).filter((e): e is Employee => e !== null);
                 
                 if (employees.length === 0) {
-                     throw new Error("No valid employee data could be parsed. Check date formats.");
+                     throw new Error("No valid employee data could be parsed. Check year columns and month values.");
                 }
 
                 setInitialData(employees);
@@ -126,7 +149,12 @@ export default function WelcomePage() {
                 toast({ variant: 'destructive', title: 'Import Failed', description: error.message || 'Could not parse the spreadsheet file.' });
             }
         };
-        reader.readAsBinaryString(file);
+        
+        if (file.name.endsWith('.csv')) {
+             reader.readAsText(file); // For CSV, read as text
+        } else {
+             reader.readAsBinaryString(file); // For XLSX
+        }
     };
 
     const renderStep = () => {
@@ -230,3 +258,5 @@ export default function WelcomePage() {
         </div>
     );
 }
+
+    
