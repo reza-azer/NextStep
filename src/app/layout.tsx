@@ -6,7 +6,7 @@ import { ThemeProvider } from '@/hooks/use-theme';
 
 export const metadata: Metadata = {
   title: 'NextStep',
-  description: 'Manage employee KGB and analyze promotion candidates.',
+  description: 'Kelola KGB pegawai dan analisis kandidat promosi.',
 };
 
 export default function RootLayout({

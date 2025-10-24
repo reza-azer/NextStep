@@ -84,7 +84,7 @@ export default function WelcomePage() {
 
 
                 if(jsonData.length < 2) {
-                    throw new Error("Spreadsheet is empty or has no data rows.");
+                    throw new Error("Spreadsheet kosong atau tidak memiliki baris data.");
                 }
                 
                 const headers: (string | null | undefined)[] = jsonData[0];
@@ -99,7 +99,7 @@ export default function WelcomePage() {
                     if (!nameHeader) missingColumns.push("NAMA");
                     if (!positionHeader) missingColumns.push("JABATAN");
                     if (!nipHeader) missingColumns.push("NIP");
-                    throw new Error(`Column mapping failed. Missing required columns: ${missingColumns.join(', ')}. Please check your file headers.`);
+                    throw new Error(`Pemetaan kolom gagal. Kolom yang dibutuhkan tidak ada: ${missingColumns.join(', ')}. Silakan periksa header file Anda.`);
                 }
                 
                 const nameIndex = headers.indexOf(nameHeader);
@@ -111,7 +111,7 @@ export default function WelcomePage() {
                     .sort((a, b) => parseInt(a.header!.trim()) - parseInt(b.header!.trim()));
 
                 if (yearColumns.length === 0) {
-                     throw new Error("No year columns (e.g., 2023, 2024) found in the header.");
+                     throw new Error("Tidak ditemukan kolom tahun (misalnya, 2023, 2024) di header.");
                 }
 
                 const employees: Employee[] = dataRows.map((row: any[]) => {
@@ -146,16 +146,16 @@ export default function WelcomePage() {
                 }).filter((e): e is Employee => e !== null);
                 
                 if (employees.length === 0) {
-                     throw new Error("No valid employee data could be parsed. Check year columns and month values.");
+                     throw new Error("Tidak ada data pegawai valid yang dapat di-parse. Periksa kolom tahun dan nilai bulan.");
                 }
 
                 setInitialData(employees);
-                toast({ title: 'Import Successful', description: `${employees.length} employees imported from ${file.name}.` });
+                toast({ title: 'Impor Berhasil', description: `${employees.length} pegawai diimpor dari ${file.name}.` });
                 router.push('/dashboard');
 
             } catch (error: any) {
                 console.error(error);
-                toast({ variant: 'destructive', title: 'Import Failed', description: error.message || 'Could not parse the spreadsheet file.' });
+                toast({ variant: 'destructive', title: 'Impor Gagal', description: error.message || 'Tidak dapat mengurai file spreadsheet.' });
             }
         };
         
@@ -177,8 +177,8 @@ export default function WelcomePage() {
                                     <div className="flex items-center gap-4">
                                         <PlusCircle className="w-8 h-8 text-primary" />
                                         <div>
-                                            <CardTitle className="font-headline">Manual Input</CardTitle>
-                                            <CardDescription>Add employee data one by one through the form.</CardDescription>
+                                            <CardTitle className="font-headline">Input Manual</CardTitle>
+                                            <CardDescription>Tambah data pegawai satu per satu melalui formulir.</CardDescription>
                                         </div>
                                     </div>
                                 </CardHeader>
@@ -190,8 +190,8 @@ export default function WelcomePage() {
                                     <div className="flex items-center gap-4">
                                         <FileSpreadsheet className="w-8 h-8 text-primary" />
                                         <div>
-                                            <CardTitle className="font-headline">Import from Excel/CSV</CardTitle>
-                                            <CardDescription>Upload an .xlsx or .csv file to bulk import.</CardDescription>
+                                            <CardTitle className="font-headline">Impor dari Excel/CSV</CardTitle>
+                                            <CardDescription>Unggah file .xlsx atau .csv untuk impor massal.</CardDescription>
                                         </div>
                                     </div>
                                 </CardHeader>
@@ -209,8 +209,8 @@ export default function WelcomePage() {
                                     <div className="flex items-center gap-4">
                                         <Sparkles className="w-8 h-8 text-primary" />
                                         <div>
-                                             <CardTitle className="font-headline">Create New Data</CardTitle>
-                                             <CardDescription>Start from scratch by adding new employee data.</CardDescription>
+                                             <CardTitle className="font-headline">Buat Data Baru</CardTitle>
+                                             <CardDescription>Mulai dari awal dengan menambahkan data pegawai baru.</CardDescription>
                                         </div>
                                     </div>
                                  </CardHeader>
@@ -222,8 +222,8 @@ export default function WelcomePage() {
                                      <div className="flex items-center gap-4">
                                         <FileJson className="w-8 h-8 text-primary" />
                                         <div>
-                                            <CardTitle className="font-headline">Import Existing Data</CardTitle>
-                                            <CardDescription>Load employee data from a previously exported .json file.</CardDescription>
+                                            <CardTitle className="font-headline">Impor Data yang Ada</CardTitle>
+                                            <CardDescription>Muat data pegawai dari file .json yang diekspor sebelumnya.</CardDescription>
                                         </div>
                                      </div>
                                  </CardHeader>
@@ -253,13 +253,13 @@ export default function WelcomePage() {
             <div className="w-full max-w-4xl mx-auto">
                 <div className="text-center mb-8">
                     <h1 className="font-headline text-4xl font-bold text-primary">NextStep</h1>
-                    <p className="text-muted-foreground text-lg mt-2">Welcome! How would you like to start?</p>
+                    <p className="text-muted-foreground text-lg mt-2">Selamat datang! Bagaimana Anda ingin memulai?</p>
                 </div>
                 {renderStep()}
                  {step !== 'initial' && (
                     <div className="mt-8 text-center">
                         <Button variant="link" onClick={() => setStep('initial')}>
-                            &larr; Back
+                            &larr; Kembali
                         </Button>
                     </div>
                 )}

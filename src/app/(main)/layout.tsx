@@ -38,7 +38,7 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
   const getTitle = () => {
     switch (pathname) {
       case '/dashboard':
-        return 'Dashboard';
+        return 'Dasbor';
       default:
         return 'NextStep';
     }
@@ -65,11 +65,11 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
               <SidebarMenuButton
                 asChild
                 isActive={pathname === '/dashboard'}
-                tooltip={{ children: 'Dashboard' }}
+                tooltip={{ children: 'Dasbor' }}
               >
                 <Link href="/dashboard">
                   <LayoutDashboard />
-                  <span>Dashboard</span>
+                  <span>Dasbor</span>
                 </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
@@ -81,25 +81,25 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
                 <SidebarMenuButton
                     variant="ghost"
                     className="w-full justify-start text-muted-foreground hover:text-destructive"
-                    tooltip={{ children: 'Exit' }}
+                    tooltip={{ children: 'Keluar' }}
                     >
                     <LogOut />
-                    <span>Exit</span>
+                    <span>Keluar</span>
                 </SidebarMenuButton>
             </AlertDialogTrigger>
             <AlertDialogContent>
                 <AlertDialogHeader>
-                    <AlertDialogTitle>Are you sure you want to exit?</AlertDialogTitle>
+                    <AlertDialogTitle>Apakah Anda yakin ingin keluar?</AlertDialogTitle>
                     <AlertDialogDescription>
-                        Your current work is saved in your browser's local storage. To be extra safe, consider exporting your data to a JSON file before you leave.
+                        Pekerjaan Anda saat ini disimpan di penyimpanan lokal peramban. Untuk lebih aman, pertimbangkan untuk mengekspor data Anda ke file JSON sebelum keluar.
                     </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogCancel>Batal</AlertDialogCancel>
                     <AlertDialogAction
                         onClick={() => router.push('/')}
                         className="bg-destructive hover:bg-destructive/90">
-                        Exit
+                        Keluar
                     </AlertDialogAction>
                 </AlertDialogFooter>
             </AlertDialogContent>

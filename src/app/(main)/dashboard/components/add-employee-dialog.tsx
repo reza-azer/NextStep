@@ -25,11 +25,11 @@ import type { Employee } from '@/lib/types';
 import { toast } from '@/hooks/use-toast';
 
 const employeeSchema = z.object({
-  name: z.string().min(2, "Name must be at least 2 characters."),
-  position: z.string().min(2, "Position must be at least 2 characters."),
-  nip: z.string().min(5, "NIP must be at least 5 characters."),
+  name: z.string().min(2, "Nama harus memiliki setidaknya 2 karakter."),
+  position: z.string().min(2, "Jabatan harus memiliki setidaknya 2 karakter."),
+  nip: z.string().min(5, "NIP harus memiliki setidaknya 5 karakter."),
   lastKGBDate: z.date({
-    required_error: "Last KGB date is required.",
+    required_error: "Tanggal KGB terakhir wajib diisi.",
   }),
 });
 
@@ -67,10 +67,10 @@ export function AddEmployeeDialog({ children, employee, onSave }: AddEmployeeDia
     };
     if (isEditMode) {
       onSave({ ...employee, ...dataToSave });
-       toast({ title: 'Employee Updated', description: `${data.name}'s details have been saved.` });
+       toast({ title: 'Pegawai Diperbarui', description: `Detail untuk ${data.name} telah disimpan.` });
     } else {
       onSave(dataToSave);
-      toast({ title: 'Employee Added', description: `${data.name} has been added to the list.` });
+      toast({ title: 'Pegawai Ditambahkan', description: `${data.name} telah ditambahkan ke daftar.` });
     }
     setIsOpen(false);
   }
@@ -80,9 +80,9 @@ export function AddEmployeeDialog({ children, employee, onSave }: AddEmployeeDia
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle className="font-headline">{isEditMode ? 'Edit Employee' : 'Add New Employee'}</DialogTitle>
+          <DialogTitle className="font-headline">{isEditMode ? 'Edit Pegawai' : 'Tambah Pegawai Baru'}</DialogTitle>
           <DialogDescription>
-            {isEditMode ? "Update the employee's details below." : "Enter the details for the new employee."}
+            {isEditMode ? "Perbarui detail pegawai di bawah ini." : "Masukkan detail untuk pegawai baru."}
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -92,7 +92,7 @@ export function AddEmployeeDialog({ children, employee, onSave }: AddEmployeeDia
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Full Name</FormLabel>
+                  <FormLabel>Nama Lengkap</FormLabel>
                   <FormControl>
                     <Input placeholder="John Doe" {...field} />
                   </FormControl>
@@ -105,7 +105,7 @@ export function AddEmployeeDialog({ children, employee, onSave }: AddEmployeeDia
               name="position"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Jabatan / Position</FormLabel>
+                  <FormLabel>Jabatan</FormLabel>
                   <FormControl>
                     <Input placeholder="Staff" {...field} />
                   </FormControl>
@@ -118,7 +118,7 @@ export function AddEmployeeDialog({ children, employee, onSave }: AddEmployeeDia
               name="nip"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>NIP / Employee ID</FormLabel>
+                  <FormLabel>NIP</FormLabel>
                   <FormControl>
                     <Input placeholder="199001012020121001" {...field} />
                   </FormControl>
@@ -131,7 +131,7 @@ export function AddEmployeeDialog({ children, employee, onSave }: AddEmployeeDia
               name="lastKGBDate"
               render={({ field }) => (
                 <FormItem className="flex flex-col">
-                  <FormLabel>Last KGB Date</FormLabel>
+                  <FormLabel>Tanggal KGB Terakhir</FormLabel>
                   <Popover>
                     <PopoverTrigger asChild>
                       <FormControl>
@@ -145,7 +145,7 @@ export function AddEmployeeDialog({ children, employee, onSave }: AddEmployeeDia
                           {field.value ? (
                             format(field.value, "PPP")
                           ) : (
-                            <span>Pick a date</span>
+                            <span>Pilih tanggal</span>
                           )}
                           <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                         </Button>
@@ -171,7 +171,7 @@ export function AddEmployeeDialog({ children, employee, onSave }: AddEmployeeDia
               )}
             />
             <DialogFooter>
-              <Button type="submit">Save changes</Button>
+              <Button type="submit">Simpan perubahan</Button>
             </DialogFooter>
           </form>
         </Form>

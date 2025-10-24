@@ -17,11 +17,11 @@ export function useEmployeeData() {
         setEmployees(JSON.parse(storedData));
       }
     } catch (error) {
-      console.error('Failed to load employee data from localStorage', error);
+      console.error('Gagal memuat data pegawai dari localStorage', error);
       toast({
         variant: "destructive",
-        title: "Error",
-        description: "Could not load data. It might be corrupted.",
+        title: "Galat",
+        description: "Tidak dapat memuat data. Mungkin data rusak.",
       });
     }
     setIsInitialized(true);
@@ -31,11 +31,11 @@ export function useEmployeeData() {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
     } catch (error) {
-      console.error('Failed to save employee data to localStorage', error);
+      console.error('Gagal menyimpan data pegawai ke localStorage', error);
       toast({
         variant: "destructive",
-        title: "Error",
-        description: "Could not save data to local storage.",
+        title: "Galat",
+        description: "Tidak dapat menyimpan data ke penyimpanan lokal.",
       });
     }
   };
@@ -97,18 +97,18 @@ export function useEmployeeData() {
           setEmployees(newEmployees);
           updateStorage(newEmployees);
           toast({
-            title: "Success",
-            description: `Successfully imported ${newEmployees.length} employee records.`,
+            title: "Sukses",
+            description: `Berhasil mengimpor ${newEmployees.length} data pegawai.`,
           });
         } else {
-          throw new Error("Invalid file format.");
+          throw new Error("Format file tidak valid.");
         }
       } catch (error) {
-        console.error('Failed to import data', error);
+        console.error('Gagal mengimpor data', error);
         toast({
           variant: "destructive",
-          title: "Import Failed",
-          description: "The selected file is not a valid employee data JSON.",
+          title: "Impor Gagal",
+          description: "File yang dipilih bukan file JSON data pegawai yang valid.",
         });
       }
     };
@@ -119,8 +119,8 @@ export function useEmployeeData() {
     if (employees.length === 0) {
       toast({
         variant: "destructive",
-        title: "Export Failed",
-        description: "No employee data to export.",
+        title: "Ekspor Gagal",
+        description: "Tidak ada data pegawai untuk diekspor.",
       });
       return;
     }
@@ -136,8 +136,8 @@ export function useEmployeeData() {
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
     toast({
-        title: "Success",
-        description: "Employee data exported successfully.",
+        title: "Sukses",
+        description: "Data pegawai berhasil diekspor.",
     });
   }, [employees]);
   

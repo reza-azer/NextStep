@@ -108,11 +108,11 @@ export default function DashboardPage() {
         <CardHeader>
             <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
                 <div>
-                    <CardTitle className="font-headline">Employee List</CardTitle>
+                    <CardTitle className="font-headline">Daftar Pegawai</CardTitle>
                     <CardDescription>
                       {searchTerm || selectedIds.length > 0
-                        ? `Showing ${filteredAndSortedEmployees.length} of ${employees.length} employees.`
-                        : `Total ${employees.length} employees.`
+                        ? `Menampilkan ${filteredAndSortedEmployees.length} dari ${employees.length} pegawai.`
+                        : `Total ${employees.length} pegawai.`
                       }
                     </CardDescription>
                 </div>
@@ -120,7 +120,7 @@ export default function DashboardPage() {
                     <div className="relative">
                       <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                       <Input
-                          placeholder="Search by name, position, or NIP..."
+                          placeholder="Cari nama, jabatan, atau NIP..."
                           value={searchTerm}
                           onChange={(e) => setSearchTerm(e.target.value)}
                           className="w-full sm:w-64 pl-10"
@@ -128,11 +128,11 @@ export default function DashboardPage() {
                     </div>
                     <Select value={sortOption} onValueChange={(value) => setSortOption(value as SortOption)}>
                         <SelectTrigger className="w-full sm:w-[180px]">
-                            <SelectValue placeholder="Sort by" />
+                            <SelectValue placeholder="Urutkan berdasarkan" />
                         </SelectTrigger>
                         <SelectContent>
-                            <SelectItem value="closest">Next KGB (Closest)</SelectItem>
-                            <SelectItem value="furthest">Next KGB (Furthest)</SelectItem>
+                            <SelectItem value="closest">KGB Berikutnya (Terdekat)</SelectItem>
+                            <SelectItem value="furthest">KGB Berikutnya (Terlama)</SelectItem>
                         </SelectContent>
                     </Select>
                 </div>

@@ -23,14 +23,14 @@ export function DataActions({ onAddEmployee, onExport, selectedIds, children }: 
         <AddEmployeeDialog onSave={onAddEmployee}>
           <Button>
             <PlusCircle />
-            Add Employee
+            Tambah Pegawai
           </Button>
         </AddEmployeeDialog>
       )}
       <div className="flex gap-2 ml-auto">
         <Button variant="outline" onClick={onExport}>
           <FileDown />
-          Export JSON
+          Ekspor JSON
         </Button>
       </div>
     </div>

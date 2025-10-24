@@ -61,8 +61,8 @@ export function EmployeeTable({
     return (
       <div className="flex flex-col items-center justify-center text-center py-16 px-4 border-2 border-dashed rounded-lg bg-card/50">
         <Users className="w-16 h-16 text-muted-foreground mb-4" />
-        <h3 className="font-headline text-xl font-semibold">No Employees Found</h3>
-        <p className="text-muted-foreground mt-1">Try adjusting your search or add a new employee.</p>
+        <h3 className="font-headline text-xl font-semibold">Pegawai Tidak Ditemukan</h3>
+        <p className="text-muted-foreground mt-1">Coba sesuaikan pencarian Anda atau tambahkan pegawai baru.</p>
       </div>
     );
   }
@@ -70,8 +70,8 @@ export function EmployeeTable({
   const handleDelete = (id: string, name: string) => {
     onDeleteEmployee(id);
     toast({
-      title: 'Employee Deleted',
-      description: `${name} has been removed from the list.`,
+      title: 'Pegawai Dihapus',
+      description: `${name} telah dihapus dari daftar.`,
       variant: 'destructive'
     });
   }
@@ -88,17 +88,17 @@ export function EmployeeTable({
               <Checkbox 
                 checked={isAllSelected || isSomeSelected}
                 onCheckedChange={handleSelectAll}
-                aria-label="Select all"
+                aria-label="Pilih semua"
               />
             </TableHead>
             <TableHead className="w-[50px]">No.</TableHead>
-            <TableHead>Name</TableHead>
+            <TableHead>Nama</TableHead>
             <TableHead>Jabatan</TableHead>
             <TableHead>NIP</TableHead>
-            <TableHead>Last KGB</TableHead>
-            <TableHead>Next KGB</TableHead>
+            <TableHead>KGB Terakhir</TableHead>
+            <TableHead>KGB Berikutnya</TableHead>
             <TableHead>Status</TableHead>
-            <TableHead className="text-right w-[120px]">Actions</TableHead>
+            <TableHead className="text-right w-[120px]">Aksi</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -113,7 +113,7 @@ export function EmployeeTable({
                   <Checkbox 
                     checked={isSelected}
                     onCheckedChange={(checked) => handleSelectRow(employee.id, !!checked)}
-                    aria-label={`Select ${employee.name}`}
+                    aria-label={`Pilih ${employee.name}`}
                   />
                 </TableCell>
                 <TableCell className="font-medium">{index + 1}</TableCell>
@@ -124,10 +124,10 @@ export function EmployeeTable({
                 <TableCell>{format(nextKGBDate, 'dd MMM yyyy')}</TableCell>
                 <TableCell>
                   {isReminder ? (
-                    <Badge variant="destructive">Reminder</Badge>
+                    <Badge variant="destructive">Pengingat</Badge>
                   ) : (
                     <Badge variant="secondary">
-                      {daysUntilNextKGB > 0 ? `${daysUntilNextKGB} days left` : 'Past due'}
+                      {daysUntilNextKGB > 0 ? `${daysUntilNextKGB} hari lagi` : 'Lewat waktu'}
                     </Badge>
                   )}
                 </TableCell>
@@ -144,20 +144,20 @@ export function EmployeeTable({
                       <AlertDialogTrigger asChild>
                         <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive">
                           <Trash2 className="h-4 w-4" />
-                          <span className="sr-only">Delete</span>
+                          <span className="sr-only">Hapus</span>
                         </Button>
                       </AlertDialogTrigger>
                       <AlertDialogContent>
                         <AlertDialogHeader>
-                          <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                          <AlertDialogTitle>Apakah Anda benar-benar yakin?</AlertDialogTitle>
                           <AlertDialogDescription>
-                            This action cannot be undone. This will permanently delete the employee record for <span className="font-bold">{employee.name}</span>.
+                            Tindakan ini tidak bisa dibatalkan. Ini akan menghapus data pegawai <span className="font-bold">{employee.name}</span> secara permanen.
                           </AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>
-                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogCancel>Batal</AlertDialogCancel>
                           <AlertDialogAction onClick={() => handleDelete(employee.id, employee.name)} className="bg-destructive hover:bg-destructive/90">
-                            Delete
+                            Hapus
                           </AlertDialogAction>
                         </AlertDialogFooter>
                       </AlertDialogContent>

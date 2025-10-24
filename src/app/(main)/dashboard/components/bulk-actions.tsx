@@ -44,11 +44,11 @@ interface BulkActionsProps {
 }
 
 const positionSchema = z.object({
-  position: z.string().min(2, "Position must be at least 2 characters."),
+  position: z.string().min(2, "Jabatan harus memiliki setidaknya 2 karakter."),
 });
 
 const dateSchema = z.object({
-  lastKGBDate: z.date({ required_error: "Last KGB date is required." }),
+  lastKGBDate: z.date({ required_error: "Tanggal KGB terakhir wajib diisi." }),
 });
 
 export function BulkActions({ 
@@ -72,38 +72,38 @@ export function BulkActions({
   
   const handlePositionSubmit = (data: { position: string }) => {
     onBulkUpdate(selectedIds, { position: data.position });
-    toast({ title: 'Bulk Update Successful', description: `Position updated for ${selectedCount} employees.` });
+    toast({ title: 'Pembaruan Massal Berhasil', description: `Jabatan diperbarui untuk ${selectedCount} pegawai.` });
     setPositionDialogOpen(false);
     onClearSelection();
   };
 
   const handleDateSubmit = (data: { lastKGBDate: Date }) => {
     onBulkUpdate(selectedIds, { lastKGBDate: data.lastKGBDate.toISOString() });
-    toast({ title: 'Bulk Update Successful', description: `Last KGB date updated for ${selectedCount} employees.` });
+    toast({ title: 'Pembaruan Massal Berhasil', description: `Tanggal KGB terakhir diperbarui untuk ${selectedCount} pegawai.` });
     setDateDialogOpen(false);
     onClearSelection();
   };
   
   const handleDelete = () => {
     onBulkDelete();
-    toast({ title: 'Bulk Delete Successful', description: `${selectedCount} employees have been deleted.`, variant: 'destructive'});
+    toast({ title: 'Penghapusan Massal Berhasil', description: `${selectedCount} pegawai telah dihapus.`, variant: 'destructive'});
     onClearSelection();
   }
 
   return (
     <div className="flex items-center gap-2 border border-dashed p-2 rounded-lg">
-       <span className="text-sm font-medium pl-2">{selectedCount} selected</span>
+       <span className="text-sm font-medium pl-2">{selectedCount} dipilih</span>
        
         <Dialog open={positionDialogOpen} onOpenChange={setPositionDialogOpen}>
             <DialogTrigger asChild>
                 <Button variant="outline" size="sm">
-                    <Edit className="mr-2 h-4 w-4" /> Edit Position
+                    <Edit className="mr-2 h-4 w-4" /> Edit Jabatan
                 </Button>
             </DialogTrigger>
             <DialogContent>
                 <DialogHeader>
-                    <DialogTitle>Bulk Edit Position</DialogTitle>
-                    <DialogDescription>Update the position for the {selectedCount} selected employees.</DialogDescription>
+                    <DialogTitle>Edit Jabatan Massal</DialogTitle>
+                    <DialogDescription>Perbarui jabatan untuk {selectedCount} pegawai yang dipilih.</DialogDescription>
                 </DialogHeader>
                 <Form {...positionForm}>
                     <form onSubmit={positionForm.handleSubmit(handlePositionSubmit)} className="space-y-4 py-4">
@@ -112,7 +112,7 @@ export function BulkActions({
                             name="position"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>New Jabatan / Position</FormLabel>
+                                    <FormLabel>Jabatan Baru</FormLabel>
                                     <FormControl>
                                         <Input placeholder="Staff" {...field} />
                                     </FormControl>
@@ -121,7 +121,7 @@ export function BulkActions({
                             )}
                         />
                         <DialogFooter>
-                            <Button type="submit">Update Position</Button>
+                            <Button type="submit">Perbarui Jabatan</Button>
                         </DialogFooter>
                     </form>
                 </Form>
@@ -131,13 +131,13 @@ export function BulkActions({
         <Dialog open={dateDialogOpen} onOpenChange={setDateDialogOpen}>
             <DialogTrigger asChild>
                 <Button variant="outline" size="sm">
-                    <CalendarIcon className="mr-2 h-4 w-4" /> Edit Last KGB
+                    <CalendarIcon className="mr-2 h-4 w-4" /> Edit KGB Terakhir
                 </Button>
             </DialogTrigger>
             <DialogContent>
                 <DialogHeader>
-                    <DialogTitle>Bulk Edit Last KGB Date</DialogTitle>
-                    <DialogDescription>Update the last KGB date for the {selectedCount} selected employees.</DialogDescription>
+                    <DialogTitle>Edit Tanggal KGB Terakhir Massal</DialogTitle>
+                    <DialogDescription>Perbarui tanggal KGB terakhir untuk {selectedCount} pegawai yang dipilih.</DialogDescription>
                 </DialogHeader>
                 <Form {...dateForm}>
                     <form onSubmit={dateForm.handleSubmit(handleDateSubmit)} className="space-y-4 py-4">
@@ -146,7 +146,7 @@ export function BulkActions({
                             name="lastKGBDate"
                             render={({ field }) => (
                                 <FormItem className="flex flex-col">
-                                <FormLabel>New Last KGB Date</FormLabel>
+                                <FormLabel>Tanggal KGB Terakhir Baru</FormLabel>
                                 <Popover>
                                     <PopoverTrigger asChild>
                                     <FormControl>
@@ -154,7 +154,7 @@ export function BulkActions({
                                         variant={"outline"}
                                         className={cn("w-full pl-3 text-left font-normal", !field.value && "text-muted-foreground")}
                                         >
-                                        {field.value ? format(field.value, "PPP") : (<span>Pick a date</span>)}
+                                        {field.value ? format(field.value, "PPP") : (<span>Pilih tanggal</span>)}
                                         <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                                         </Button>
                                     </FormControl>
@@ -177,7 +177,7 @@ export function BulkActions({
                             )}
                         />
                         <DialogFooter>
-                            <Button type="submit">Update Date</Button>
+                            <Button type="submit">Perbarui Tanggal</Button>
                         </DialogFooter>
                     </form>
                 </Form>
@@ -187,20 +187,20 @@ export function BulkActions({
         <AlertDialog>
             <AlertDialogTrigger asChild>
                 <Button variant="destructive" size="sm">
-                    <Trash2 className="mr-2 h-4 w-4" /> Delete All
+                    <Trash2 className="mr-2 h-4 w-4" /> Hapus Semua
                 </Button>
             </AlertDialogTrigger>
             <AlertDialogContent>
                 <AlertDialogHeader>
-                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                    <AlertDialogTitle>Apakah Anda benar-benar yakin?</AlertDialogTitle>
                     <AlertDialogDescription>
-                        This action cannot be undone. This will permanently delete the {selectedCount} selected employee records.
+                        Tindakan ini tidak dapat dibatalkan. Ini akan menghapus secara permanen {selectedCount} data pegawai yang dipilih.
                     </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogCancel>Batal</AlertDialogCancel>
                     <AlertDialogAction onClick={handleDelete} className="bg-destructive hover:bg-destructive/90">
-                        Delete
+                        Hapus
                     </AlertDialogAction>
                 </AlertDialogFooter>
             </AlertDialogContent>
@@ -208,7 +208,7 @@ export function BulkActions({
 
         <Button variant="ghost" size="icon" onClick={onClearSelection} className="ml-auto">
             <X className="h-4 w-4" />
-            <span className="sr-only">Clear selection</span>
+            <span className="sr-only">Hapus pilihan</span>
         </Button>
     </div>
   );
