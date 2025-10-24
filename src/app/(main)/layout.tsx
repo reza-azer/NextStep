@@ -108,7 +108,8 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
       </Sidebar>
       <SidebarInset>
         <header className="flex h-14 items-center gap-4 border-b bg-background/80 backdrop-blur-sm px-6 sticky top-0 z-30">
-            <div className="md:hidden">
+            <SidebarTrigger className="hidden md:flex" />
+             <div className="md:hidden">
               <SidebarTrigger />
             </div>
             <div className="flex-1">
