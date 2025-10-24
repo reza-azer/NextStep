@@ -11,10 +11,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { calculateKGB } from '@/lib/utils';
 import { Search } from 'lucide-react';
 import { BulkActions } from './components/bulk-actions';
-import type { Employee } from '@/lib/types';
 
-
-type SortOption = 'closest' | 'furthest';
+type SortOption = 'closest' | 'furthest' | 'name-asc' | 'name-desc';
 
 export default function DashboardPage() {
   const { 
@@ -42,19 +40,24 @@ export default function DashboardPage() {
     );
 
     const sorted = [...filtered].sort((a, b) => {
+      if (sortOption === 'name-asc') {
+        return a.name.localeCompare(b.name);
+      }
+      if (sortOption === 'name-desc') {
+        return b.name.localeCompare(a.name);
+      }
       const { daysUntilNextKGB: daysA } = calculateKGB(a.lastKGBDate);
       const { daysUntilNextKGB: daysB } = calculateKGB(b.lastKGBDate);
       if (sortOption === 'closest') {
         return daysA - daysB;
-      } else {
-        return daysB - daysA;
       }
+      // 'furthest'
+      return daysB - daysA;
     });
     return sorted;
   }, [employees, searchTerm, sortOption]);
   
   const handleSelectionChange = useCallback((ids: string[]) => {
-      // Filter out IDs that are not in the current view
     const currentIds = new Set(filteredAndSortedEmployees.map(e => e.id));
     const newSelectedIds = ids.filter(id => currentIds.has(id));
     setSelectedIds(newSelectedIds);
@@ -73,6 +76,7 @@ export default function DashboardPage() {
            <Skeleton className="h-10 w-40" />
            <div className="flex gap-2 ml-auto">
              <Skeleton className="h-10 w-32" />
+             <Skeleton className="h-10 w-32" />
            </div>
         </div>
         <Card>
@@ -89,13 +93,14 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      <DataActions
+       <DataActions
         onAddEmployee={addEmployee}
         onExportJson={exportEmployees}
         onExportXlsx={exportEmployeesToXLSX}
         selectedIds={selectedIds}
       >
         <BulkActions 
+          selectedIds={selectedIds}
           selectedCount={selectedIds.length}
           onBulkUpdate={bulkUpdateEmployees}
           onBulkDelete={() => {
@@ -103,7 +108,6 @@ export default function DashboardPage() {
             setSelectedIds([]);
           }}
           onClearSelection={() => setSelectedIds([])}
-          selectedIds={selectedIds}
         />
       </DataActions>
       <Card>
@@ -129,12 +133,14 @@ export default function DashboardPage() {
                       />
                     </div>
                     <Select value={sortOption} onValueChange={(value) => setSortOption(value as SortOption)}>
-                        <SelectTrigger className="w-full sm:w-[180px]">
+                        <SelectTrigger className="w-full sm:w-[220px]">
                             <SelectValue placeholder="Urutkan berdasarkan" />
                         </SelectTrigger>
                         <SelectContent>
                             <SelectItem value="closest">KGB Berikutnya (Terdekat)</SelectItem>
                             <SelectItem value="furthest">KGB Berikutnya (Terlama)</SelectItem>
+                            <SelectItem value="name-asc">Nama (A-Z)</SelectItem>
+                            <SelectItem value="name-desc">Nama (Z-A)</SelectItem>
                         </SelectContent>
                     </Select>
                 </div>

@@ -158,14 +158,24 @@ export function useEmployeeData() {
     const data = employees.map((employee, index) => {
       const row: (string | number)[] = [index + 1, employee.nip, employee.name];
       const kgbDates: Date[] = [];
-      let currentKGB = new Date(employee.lastKGBDate);
+      let lastKGB = new Date(employee.lastKGBDate);
 
-      // Find all KGB dates within the range
-      while (currentKGB.getFullYear() <= endYear) {
-        if(currentKGB.getFullYear() >= startYear) {
-          kgbDates.push(new Date(currentKGB.getTime()));
-        }
-        currentKGB = addYears(currentKGB, 2);
+      // Generate future KGB dates
+      let futureKGB = new Date(lastKGB.getTime());
+      while (futureKGB.getFullYear() <= endYear) {
+          if (futureKGB.getFullYear() >= lastKGB.getFullYear()) {
+             kgbDates.push(new Date(futureKGB.getTime()));
+          }
+          futureKGB = addYears(futureKGB, 2);
+      }
+
+      // Generate past KGB dates
+      let pastKGB = new Date(lastKGB.getTime());
+      while (pastKGB.getFullYear() >= startYear) {
+          if (pastKGB.getFullYear() < lastKGB.getFullYear()) {
+             kgbDates.push(new Date(pastKGB.getTime()));
+          }
+           pastKGB = addYears(pastKGB, -2);
       }
       
       // Populate year columns
