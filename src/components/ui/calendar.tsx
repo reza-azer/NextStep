@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { format } from 'date-fns';
 import { ChevronLeft, ChevronRight } from "lucide-react"
 import { DayPicker, DropdownProps } from "react-day-picker"
 
@@ -66,6 +67,8 @@ function Calendar({
         Dropdown: (dropdownProps: DropdownProps) => {
           const { fromYear, fromMonth, fromDate, toYear, toMonth, toDate } =
             props;
+          const { formatters, caption, name } = dropdownProps;
+          const { format } = formatters;
 
           let selectValues: { label: string; value: string }[] = [];
           if (dropdownProps.name === "months") {
@@ -89,8 +92,6 @@ function Calendar({
               selectValues = years;
             }
           }
-          const { caption, name } = dropdownProps;
-          const { format } = dropdownProps.formatters;
           const value = String(dropdownProps.value);
 
           return (
