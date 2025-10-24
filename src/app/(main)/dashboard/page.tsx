@@ -80,7 +80,10 @@ export default function DashboardPage() {
                 <div>
                     <CardTitle className="font-headline">Employee List</CardTitle>
                     <CardDescription>
-                        Total {employees.length} employees.
+                      {searchTerm
+                        ? `Showing ${filteredAndSortedEmployees.length} of ${employees.length} employees.`
+                        : `Total ${employees.length} employees.`
+                      }
                     </CardDescription>
                 </div>
                 <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
