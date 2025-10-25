@@ -107,13 +107,13 @@ export default function WelcomePage() {
                     throw new Error(`Pemetaan kolom gagal. Kolom yang dibutuhkan tidak ada: ${missingColumns.join(', ')}. Silakan periksa header file Anda.`);
                 }
                 
-                const nameIndex = headers.findIndex(h => h.toLowerCase() === nameHeader.toLowerCase());
-                const positionIndex = headers.findIndex(h => h.toLowerCase() === positionHeader.toLowerCase());
-                const nipIndex = headers.findIndex(h => h.toLowerCase() === nipHeader.toLowerCase());
+                const nameIndex = headers.findIndex(h => String(h).toLowerCase() === nameHeader.toLowerCase());
+                const positionIndex = headers.findIndex(h => String(h).toLowerCase() === positionHeader.toLowerCase());
+                const nipIndex = headers.findIndex(h => String(h).toLowerCase() === nipHeader.toLowerCase());
                 
                 const yearRegex = /\b(\d{4})\b/;
                 const yearColumns = headers.map((h, i) => {
-                    const match = h.match(yearRegex);
+                    const match = String(h).match(yearRegex);
                     if (match) {
                         return { header: h, index: i, year: parseInt(match[1]) };
                     }
@@ -128,7 +128,9 @@ export default function WelcomePage() {
 
                 const employees: Employee[] = dataRows.map((row: any[]) => {
                     let lastKGBDate: string | null = null;
-                    // Iterate backwards through year columns to find the latest valid month
+                    const today = new Date();
+                    
+                    // Iterate backwards through year columns to find the latest valid month BEFORE today
                     for (let i = yearColumns.length - 1; i >= 0; i--) {
                         const yearCol = yearColumns[i];
                         const year = yearCol.year;
@@ -138,8 +140,13 @@ export default function WelcomePage() {
                             const monthStr = monthVal.trim().toLowerCase().substring(0, 3);
                             if (monthStr in monthMap) {
                                 const monthIndex = monthMap[monthStr];
-                                lastKGBDate = new Date(year, monthIndex, 1).toISOString();
-                                break; // Found the latest one, so we can stop
+                                const candidateDate = new Date(year, monthIndex, 1);
+                                
+                                // Only consider it if it's in the past or present
+                                if (candidateDate <= today) {
+                                    lastKGBDate = candidateDate.toISOString();
+                                    break; // Found the latest valid one, so we can stop
+                                }
                             }
                         }
                     }
@@ -158,7 +165,7 @@ export default function WelcomePage() {
                 }).filter((e): e is Employee => e !== null);
                 
                 if (employees.length === 0) {
-                     throw new Error("Tidak ada data pegawai valid yang dapat di-parse. Periksa kolom tahun dan nilai bulan.");
+                     throw new Error("Tidak ada data pegawai valid yang dapat di-parse. Periksa kolom tahun dan nilai bulan, dan pastikan ada setidaknya satu tanggal KGB sebelum atau pada hari ini.");
                 }
 
                 setInitialData(employees);
