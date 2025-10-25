@@ -10,11 +10,14 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { calculateKGB } from '@/lib/utils';
-import { Search } from 'lucide-react';
+import { Search, X } from 'lucide-react';
 import { BulkActions } from './components/bulk-actions';
 import type { KGBStatus } from '@/lib/types';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
+import { Button } from '@/components/ui/button';
+import { format } from 'date-fns';
+import { id } from 'date-fns/locale';
 
 type SortOption = 'closest' | 'furthest' | 'name-asc' | 'name-desc';
 export type StatusUnit = 'days' | 'months' | 'years';
@@ -27,6 +30,10 @@ const kgbStatuses: (KGBStatus | 'all')[] = [
   'Menunggu Konfirmasi',
   'Selesai',
 ];
+
+const currentYear = new Date().getFullYear();
+const years = Array.from({ length: 10 }, (_, i) => currentYear + i);
+const months = Array.from({ length: 12 }, (_, i) => ({ value: i, label: format(new Date(0, i), 'MMMM', { locale: id }) }));
 
 
 export default function DashboardPage() {
@@ -48,6 +55,8 @@ export default function DashboardPage() {
   const [statusUnit, setStatusUnit] = useState<StatusUnit>('days');
   const [statusFilter, setStatusFilter] = useState<KGBStatus | 'all'>('all');
   const [hideCompleted, setHideCompleted] = useState<boolean>(false);
+  const [filterMonth, setFilterMonth] = useState<string>('');
+  const [filterYear, setFilterYear] = useState<string>('');
 
 
   const filteredAndSortedEmployees = useMemo(() => {
@@ -63,6 +72,13 @@ export default function DashboardPage() {
     
     if (hideCompleted) {
       filtered = filtered.filter(e => e.kgbStatus !== 'Selesai');
+    }
+    
+    if (filterMonth && filterYear) {
+      filtered = filtered.filter(e => {
+        const { nextKGBDate } = calculateKGB(e.lastKGBDate);
+        return nextKGBDate.getMonth() === parseInt(filterMonth) && nextKGBDate.getFullYear() === parseInt(filterYear);
+      });
     }
 
     const sorted = [...filtered].sort((a, b) => {
@@ -81,7 +97,7 @@ export default function DashboardPage() {
       return daysB - daysA;
     });
     return sorted;
-  }, [employees, searchTerm, sortOption, statusFilter, hideCompleted]);
+  }, [employees, searchTerm, sortOption, statusFilter, hideCompleted, filterMonth, filterYear]);
   
   const handleSelectionChange = useCallback((ids: string[]) => {
     const currentIds = new Set(filteredAndSortedEmployees.map(e => e.id));
@@ -92,7 +108,23 @@ export default function DashboardPage() {
   // When filters change, reset selection
   React.useEffect(() => {
     setSelectedIds([]);
-  }, [searchTerm, statusFilter, hideCompleted]);
+  }, [searchTerm, statusFilter, hideCompleted, filterMonth, filterYear]);
+
+  const resetDateFilter = () => {
+    setFilterMonth('');
+    setFilterYear('');
+  }
+
+  const getCardDescription = () => {
+    if (filterMonth && filterYear) {
+      const monthName = months.find(m => m.value === parseInt(filterMonth))?.label;
+      return `Menampilkan ${filteredAndSortedEmployees.length} pegawai dengan KGB berikutnya pada ${monthName} ${filterYear}.`
+    }
+     if (searchTerm || statusFilter !== 'all' || hideCompleted) {
+       return `Menampilkan ${filteredAndSortedEmployees.length} dari ${employees.length} pegawai.`
+     }
+     return `Total ${employees.length} pegawai.`
+  }
 
 
   if (!isInitialized) {
@@ -124,10 +156,7 @@ export default function DashboardPage() {
                 <div>
                     <CardTitle className="font-headline">Daftar Pegawai</CardTitle>
                     <CardDescription>
-                      {searchTerm || statusFilter !== 'all' || hideCompleted || selectedIds.length > 0
-                        ? `Menampilkan ${filteredAndSortedEmployees.length} dari ${employees.length} pegawai.`
-                        : `Total ${employees.length} pegawai.`
-                      }
+                      {getCardDescription()}
                     </CardDescription>
                 </div>
                 <div className="flex-grow" />
@@ -151,7 +180,7 @@ export default function DashboardPage() {
                 )}
             </div>
             <div className="mt-4 flex flex-col sm:flex-row justify-between sm:items-center gap-4">
-                <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:flex lg:flex-row gap-2 w-full lg:w-auto">
                     <div className="relative">
                       <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                       <Input
@@ -162,7 +191,7 @@ export default function DashboardPage() {
                       />
                     </div>
                      <Select value={sortOption} onValueChange={(value) => setSortOption(value as SortOption)}>
-                        <SelectTrigger className="w-full sm:w-[220px]">
+                        <SelectTrigger className="w-full lg:w-[220px]">
                             <SelectValue placeholder="Urutkan berdasarkan" />
                         </SelectTrigger>
                         <SelectContent>
@@ -173,7 +202,7 @@ export default function DashboardPage() {
                         </SelectContent>
                     </Select>
                      <Select value={statusFilter} onValueChange={(value) => setStatusFilter(value as KGBStatus | 'all')}>
-                        <SelectTrigger className="w-full sm:w-[180px]">
+                        <SelectTrigger className="w-full lg:w-[180px]">
                             <SelectValue placeholder="Filter status" />
                         </SelectTrigger>
                         <SelectContent>
@@ -184,6 +213,29 @@ export default function DashboardPage() {
                            ))}
                         </SelectContent>
                     </Select>
+                     <div className="flex gap-2">
+                        <Select value={filterMonth} onValueChange={setFilterMonth}>
+                            <SelectTrigger className="w-full">
+                                <SelectValue placeholder="Filter Bulan" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {months.map(m => <SelectItem key={m.value} value={String(m.value)}>{m.label}</SelectItem>)}
+                            </SelectContent>
+                        </Select>
+                         <Select value={filterYear} onValueChange={setFilterYear}>
+                            <SelectTrigger className="w-full">
+                                <SelectValue placeholder="Filter Tahun" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {years.map(y => <SelectItem key={y} value={String(y)}>{y}</SelectItem>)}
+                            </SelectContent>
+                        </Select>
+                         {(filterMonth || filterYear) && 
+                            <Button variant="ghost" size="icon" onClick={resetDateFilter}>
+                                <X className="h-4 w-4" />
+                            </Button>
+                         }
+                    </div>
                     <div className="flex items-center space-x-2 pt-2 sm:pt-0">
                         <Checkbox id="hide-completed" checked={hideCompleted} onCheckedChange={(checked) => setHideCompleted(!!checked)} />
                         <Label htmlFor="hide-completed" className="text-sm font-medium whitespace-nowrap">Sembunyikan Selesai</Label>
