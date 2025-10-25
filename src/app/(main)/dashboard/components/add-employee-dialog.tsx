@@ -62,12 +62,13 @@ export function AddEmployeeDialog({ children, employee, onSave }: AddEmployeeDia
   }, [isOpen, form, employee, isEditMode]);
 
   function onSubmit(data: EmployeeFormValues) {
-    const dataToSave = {
+    const dataToSave: Omit<Employee, 'id'> = {
       ...data,
       lastKGBDate: data.lastKGBDate.toISOString(),
+      kgbStatus: 'Belum Diajukan',
     };
     if (isEditMode) {
-      onSave({ ...employee, ...dataToSave });
+      onSave({ ...employee, ...data, lastKGBDate: data.lastKGBDate.toISOString() });
        toast({ title: 'Pegawai Diperbarui', description: `Detail untuk ${data.name} telah disimpan.` });
     } else {
       onSave(dataToSave);

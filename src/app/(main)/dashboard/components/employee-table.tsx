@@ -26,10 +26,11 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { calculateKGB } from '@/lib/utils';
 import { format } from 'date-fns';
 import { Edit, Trash2, Users } from 'lucide-react';
-import type { Employee } from '@/lib/types';
+import type { Employee, KGBStatus } from '@/lib/types';
 import { AddEmployeeDialog } from './add-employee-dialog';
 import { toast } from '@/hooks/use-toast';
 import type { StatusUnit } from '../page';
+import { cn } from '@/lib/utils';
 
 interface EmployeeTableProps {
   employees: Employee[];
@@ -39,6 +40,15 @@ interface EmployeeTableProps {
   onSelectionChange: (ids: string[]) => void;
   statusUnit: StatusUnit;
 }
+
+const statusColors: Record<KGBStatus, string> = {
+  'Belum Diajukan': 'bg-stone-500',
+  'Sudah Diajukan': 'bg-blue-500',
+  'Proses': 'bg-yellow-500',
+  'Menunggu Konfirmasi': 'bg-orange-500',
+  'Selesai': 'bg-green-500'
+}
+
 
 export function EmployeeTable({ 
   employees, 
@@ -113,14 +123,15 @@ export function EmployeeTable({
             <TableHead>NIP</TableHead>
             <TableHead>KGB Terakhir</TableHead>
             <TableHead>KGB Berikutnya</TableHead>
-            <TableHead>Status</TableHead>
+            <TableHead>Waktu Tunggu</TableHead>
+            <TableHead>Status Pengajuan</TableHead>
             <TableHead className="text-right w-[120px]">Aksi</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {employees.map((employee, index) => {
             const { nextKGBDate, daysUntilNextKGB, monthsUntilNextKGB, yearsUntilNextKGB } = calculateKGB(employee.lastKGBDate);
-            const isReminder = daysUntilNextKGB <= 30 && daysUntilNextKGB >= 0;
+            const isReminder = daysUntilNextKGB <= 90 && daysUntilNextKGB >= 0;
             const isSelected = selectedIds.includes(employee.id);
 
             return (
@@ -146,6 +157,11 @@ export function EmployeeTable({
                        {getStatusText(daysUntilNextKGB, monthsUntilNextKGB, yearsUntilNextKGB)}
                     </Badge>
                   )}
+                </TableCell>
+                <TableCell>
+                  <Badge className={cn("text-white", statusColors[employee.kgbStatus])}>
+                    {employee.kgbStatus}
+                  </Badge>
                 </TableCell>
                 <TableCell className="text-right">
                   <div className="flex justify-end gap-2">

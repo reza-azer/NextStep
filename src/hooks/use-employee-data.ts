@@ -16,7 +16,13 @@ export function useEmployeeData() {
     try {
       const storedData = localStorage.getItem(STORAGE_KEY);
       if (storedData) {
-        setEmployees(JSON.parse(storedData));
+        // Add kgbStatus to old data if it's missing
+        const parsedData: Employee[] = JSON.parse(storedData);
+        const migratedData = parsedData.map(e => ({
+          ...e,
+          kgbStatus: e.kgbStatus || 'Belum Diajukan'
+        }));
+        setEmployees(migratedData);
       }
     } catch (error) {
       console.error('Gagal memuat data pegawai dari localStorage', error);
@@ -43,13 +49,17 @@ export function useEmployeeData() {
   };
 
   const setInitialData = useCallback((data: Employee[]) => {
-    setEmployees(data);
-    updateStorage(data);
+    const migratedData = data.map(e => ({
+      ...e,
+      kgbStatus: e.kgbStatus || 'Belum Diajukan'
+    }));
+    setEmployees(migratedData);
+    updateStorage(migratedData);
   }, []);
 
   const addEmployee = useCallback((employee: Omit<Employee, 'id'>) => {
     setEmployees(prev => {
-      const newEmployee = { ...employee, id: crypto.randomUUID() };
+      const newEmployee = { ...employee, id: crypto.randomUUID(), kgbStatus: employee.kgbStatus || 'Belum Diajukan' };
       const updatedEmployees = [...prev, newEmployee];
       updateStorage(updatedEmployees);
       return updatedEmployees;

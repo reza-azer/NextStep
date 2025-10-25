@@ -1,8 +1,9 @@
 'use client';
 
+import React from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { LayoutDashboard, LogOut, Moon, Sun } from 'lucide-react';
+import { LayoutDashboard, LogOut, Moon, Sun, BellRing } from 'lucide-react';
 import {
   Sidebar,
   SidebarContent,
@@ -15,6 +16,7 @@ import {
   SidebarRail,
   SidebarFooter,
   SidebarTrigger,
+  SidebarMenuBadge
 } from '@/components/ui/sidebar';
 import {
   AlertDialog,
@@ -29,16 +31,29 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from '@/components/ui/button';
 import { useTheme } from '@/hooks/use-theme';
+import { useEmployeeData } from '@/hooks/use-employee-data';
+import { calculateKGB } from '@/lib/utils';
 
 export default function MainLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const { theme, setTheme } = useTheme();
+  const { employees } = useEmployeeData();
+
+  const employeesToReviewCount = React.useMemo(() => {
+    return employees.filter(e => {
+      const { daysUntilNextKGB } = calculateKGB(e.lastKGBDate);
+      return daysUntilNextKGB <= 90 && daysUntilNextKGB >=0;
+    }).length;
+  }, [employees]);
+
 
   const getTitle = () => {
     switch (pathname) {
       case '/dashboard':
         return 'KGB Manager';
+      case '/reviews':
+        return 'Tinjauan KGB';
       default:
         return 'NextStep';
     }
@@ -72,6 +87,19 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
                   <span>KGB Manager</span>
                 </Link>
               </SidebarMenuButton>
+            </SidebarMenuItem>
+             <SidebarMenuItem>
+              <SidebarMenuButton
+                asChild
+                isActive={pathname === '/reviews'}
+                tooltip={{ children: 'Tinjauan' }}
+              >
+                <Link href="/reviews">
+                  <BellRing />
+                  <span>Tinjauan</span>
+                </Link>
+              </SidebarMenuButton>
+              {employeesToReviewCount > 0 && <SidebarMenuBadge>{employeesToReviewCount}</SidebarMenuBadge>}
             </SidebarMenuItem>
           </SidebarMenu>
         </SidebarContent>

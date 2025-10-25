@@ -161,6 +161,7 @@ export default function WelcomePage() {
                         position: row[positionIndex],
                         nip: String(row[nipIndex] || '').replace(/'/g, ''), // Clean NIP
                         lastKGBDate: lastKGBDate,
+                        kgbStatus: 'Belum Diajukan'
                     };
                 }).filter((e): e is Employee => e !== null);
                 
@@ -310,5 +311,3 @@ export default function WelcomePage() {
 
     
 }
-
-    
