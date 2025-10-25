@@ -12,9 +12,21 @@ import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { calculateKGB } from '@/lib/utils';
 import { Search } from 'lucide-react';
 import { BulkActions } from './components/bulk-actions';
+import type { KGBStatus } from '@/lib/types';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from '@/components/ui/label';
 
 type SortOption = 'closest' | 'furthest' | 'name-asc' | 'name-desc';
 export type StatusUnit = 'days' | 'months' | 'years';
+
+const kgbStatuses: (KGBStatus | 'all')[] = [
+  'all',
+  'Belum Diajukan',
+  'Sudah Diajukan',
+  'Proses',
+  'Menunggu Konfirmasi',
+  'Selesai',
+];
 
 
 export default function DashboardPage() {
@@ -34,14 +46,24 @@ export default function DashboardPage() {
   const [sortOption, setSortOption] = useState<SortOption>('closest');
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [statusUnit, setStatusUnit] = useState<StatusUnit>('days');
+  const [statusFilter, setStatusFilter] = useState<KGBStatus | 'all'>('all');
+  const [hideCompleted, setHideCompleted] = useState<boolean>(false);
 
 
   const filteredAndSortedEmployees = useMemo(() => {
-    const filtered = employees.filter(employee =>
+    let filtered = employees.filter(employee =>
       employee.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       employee.position.toLowerCase().includes(searchTerm.toLowerCase()) ||
       employee.nip.includes(searchTerm)
     );
+
+    if (statusFilter !== 'all') {
+      filtered = filtered.filter(e => e.kgbStatus === statusFilter);
+    }
+    
+    if (hideCompleted) {
+      filtered = filtered.filter(e => e.kgbStatus !== 'Selesai');
+    }
 
     const sorted = [...filtered].sort((a, b) => {
       if (sortOption === 'name-asc') {
@@ -59,7 +81,7 @@ export default function DashboardPage() {
       return daysB - daysA;
     });
     return sorted;
-  }, [employees, searchTerm, sortOption]);
+  }, [employees, searchTerm, sortOption, statusFilter, hideCompleted]);
   
   const handleSelectionChange = useCallback((ids: string[]) => {
     const currentIds = new Set(filteredAndSortedEmployees.map(e => e.id));
@@ -67,10 +89,10 @@ export default function DashboardPage() {
     setSelectedIds(newSelectedIds);
   }, [filteredAndSortedEmployees]);
 
-  // When search term changes, reset selection
+  // When filters change, reset selection
   React.useEffect(() => {
     setSelectedIds([]);
-  }, [searchTerm]);
+  }, [searchTerm, statusFilter, hideCompleted]);
 
 
   if (!isInitialized) {
@@ -102,7 +124,7 @@ export default function DashboardPage() {
                 <div>
                     <CardTitle className="font-headline">Daftar Pegawai</CardTitle>
                     <CardDescription>
-                      {searchTerm || selectedIds.length > 0
+                      {searchTerm || statusFilter !== 'all' || hideCompleted || selectedIds.length > 0
                         ? `Menampilkan ${filteredAndSortedEmployees.length} dari ${employees.length} pegawai.`
                         : `Total ${employees.length} pegawai.`
                       }
@@ -139,7 +161,7 @@ export default function DashboardPage() {
                           className="w-full sm:w-64 pl-10"
                       />
                     </div>
-                    <Select value={sortOption} onValueChange={(value) => setSortOption(value as SortOption)}>
+                     <Select value={sortOption} onValueChange={(value) => setSortOption(value as SortOption)}>
                         <SelectTrigger className="w-full sm:w-[220px]">
                             <SelectValue placeholder="Urutkan berdasarkan" />
                         </SelectTrigger>
@@ -150,6 +172,22 @@ export default function DashboardPage() {
                             <SelectItem value="name-desc">Nama (Z-A)</SelectItem>
                         </SelectContent>
                     </Select>
+                     <Select value={statusFilter} onValueChange={(value) => setStatusFilter(value as KGBStatus | 'all')}>
+                        <SelectTrigger className="w-full sm:w-[180px]">
+                            <SelectValue placeholder="Filter status" />
+                        </SelectTrigger>
+                        <SelectContent>
+                           {kgbStatuses.map(status => (
+                                <SelectItem key={status} value={status}>
+                                    {status === 'all' ? 'Semua Status' : status}
+                                </SelectItem>
+                           ))}
+                        </SelectContent>
+                    </Select>
+                    <div className="flex items-center space-x-2 pt-2 sm:pt-0">
+                        <Checkbox id="hide-completed" checked={hideCompleted} onCheckedChange={(checked) => setHideCompleted(!!checked)} />
+                        <Label htmlFor="hide-completed" className="text-sm font-medium whitespace-nowrap">Sembunyikan Selesai</Label>
+                    </div>
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="text-sm text-muted-foreground">Tampilan Status:</span>
