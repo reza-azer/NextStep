@@ -74,10 +74,12 @@ export default function DashboardPage() {
       filtered = filtered.filter(e => e.kgbStatus !== 'Selesai');
     }
     
-    if (filterMonth && filterYear) {
+    if (filterMonth || filterYear) {
       filtered = filtered.filter(e => {
         const { nextKGBDate } = calculateKGB(e.lastKGBDate);
-        return nextKGBDate.getMonth() === parseInt(filterMonth) && nextKGBDate.getFullYear() === parseInt(filterYear);
+        const monthMatch = filterMonth ? nextKGBDate.getMonth() === parseInt(filterMonth) : true;
+        const yearMatch = filterYear ? nextKGBDate.getFullYear() === parseInt(filterYear) : true;
+        return monthMatch && yearMatch;
       });
     }
 
@@ -116,9 +118,18 @@ export default function DashboardPage() {
   }
 
   const getCardDescription = () => {
-    if (filterMonth && filterYear) {
-      const monthName = months.find(m => m.value === parseInt(filterMonth))?.label;
-      return `Menampilkan ${filteredAndSortedEmployees.length} pegawai dengan KGB berikutnya pada ${monthName} ${filterYear}.`
+    if (filterMonth || filterYear) {
+      let dateString = '';
+      if(filterMonth && filterYear) {
+         const monthName = months.find(m => m.value === parseInt(filterMonth))?.label;
+         dateString = `pada ${monthName} ${filterYear}`;
+      } else if (filterMonth) {
+          const monthName = months.find(m => m.value === parseInt(filterMonth))?.label;
+          dateString = `pada bulan ${monthName}`;
+      } else if (filterYear) {
+          dateString = `pada tahun ${filterYear}`;
+      }
+      return `Menampilkan ${filteredAndSortedEmployees.length} pegawai dengan KGB berikutnya ${dateString}.`
     }
      if (searchTerm || statusFilter !== 'all' || hideCompleted) {
        return `Menampilkan ${filteredAndSortedEmployees.length} dari ${employees.length} pegawai.`
