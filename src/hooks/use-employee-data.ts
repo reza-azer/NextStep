@@ -5,6 +5,7 @@ import type { Employee } from '@/lib/types';
 import { toast } from '@/hooks/use-toast';
 import * as XLSX from 'xlsx';
 import { addYears } from 'date-fns';
+import { calculateKGB } from '@/lib/utils';
 
 const STORAGE_KEY = 'kgb-assistant-employees';
 
@@ -68,7 +69,23 @@ export function useEmployeeData() {
 
   const updateEmployee = useCallback((updatedEmployee: Employee) => {
     setEmployees(prev => {
-      const updatedEmployees = prev.map(e => e.id === updatedEmployee.id ? updatedEmployee : e);
+      const originalEmployee = prev.find(e => e.id === updatedEmployee.id);
+      let finalEmployee = { ...updatedEmployee };
+
+      if (originalEmployee && updatedEmployee.kgbStatus === 'Selesai' && originalEmployee.kgbStatus !== 'Selesai') {
+        const { nextKGBDate } = calculateKGB(originalEmployee.lastKGBDate);
+        finalEmployee = {
+          ...finalEmployee,
+          lastKGBDate: nextKGBDate.toISOString(),
+          kgbStatus: 'Belum Diajukan',
+        };
+        toast({
+            title: 'Siklus KGB Diperbarui',
+            description: `Status ${originalEmployee.name} selesai, siklus KGB berikutnya telah dimulai.`,
+        });
+      }
+
+      const updatedEmployees = prev.map(e => e.id === updatedEmployee.id ? finalEmployee : e);
       updateStorage(updatedEmployees);
       return updatedEmployees;
     });
@@ -84,7 +101,29 @@ export function useEmployeeData() {
 
   const bulkUpdateEmployees = useCallback((ids: string[], data: Partial<Omit<Employee, 'id'>>) => {
     setEmployees(prev => {
-      const updatedEmployees = prev.map(e => ids.includes(e.id) ? { ...e, ...data } : e);
+      const updatedEmployees = prev.map(e => {
+        if (ids.includes(e.id)) {
+          let updatedEmployee = { ...e, ...data };
+           if (data.kgbStatus === 'Selesai' && e.kgbStatus !== 'Selesai') {
+              const { nextKGBDate } = calculateKGB(e.lastKGBDate);
+              updatedEmployee = {
+                  ...updatedEmployee,
+                  lastKGBDate: nextKGBDate.toISOString(),
+                  kgbStatus: 'Belum Diajukan',
+              };
+           }
+          return updatedEmployee;
+        }
+        return e;
+      });
+
+      if (data.kgbStatus === 'Selesai') {
+           toast({
+            title: 'Siklus KGB Massal Diperbarui',
+            description: `Siklus KGB untuk ${ids.length} pegawai telah dimulai kembali.`,
+        });
+      }
+
       updateStorage(updatedEmployees);
       return updatedEmployees;
     });
